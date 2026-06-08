@@ -1,11 +1,38 @@
-# Upload-Post PHP SDK
+# upload-post-php SDK
+
+![Tests](https://github.com/eokwukwe/upload-post-php/actions/workflows/test.yml/badge.svg)
 
 PHP SDK for the Upload-Post API, with support for media uploads, scheduling, analytics, and optional Laravel integration.
 
 ## Installation
 
+### Requirements
+
+- PHP 8.2 or higher
+- Composer
+
+Install the package with Composer:
+
 ```bash
 composer require softgeng/upload-post-php
+```
+
+To install directly from GitHub before a tagged release is available, add the repository to your application's `composer.json`:
+
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/Upload-Post/upload-post-php.git"
+    }
+  ],
+  "require": {
+    "softgeng/upload-post-php": "dev-main"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
 ```
 
 ## Plain PHP Usage
@@ -178,6 +205,7 @@ Individual checks:
 
 ```bash
 composer test
+composer test:coverage
 composer test:analyse
 composer test:lint
 composer test:refactor
