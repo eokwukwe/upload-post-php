@@ -12,6 +12,7 @@ final readonly class UploadTextData
         public CommonUploadData $common,
         public ?string $link_url = null,
         public PlatformOptions $options = new PlatformOptions,
+        public ?string $idempotency_key = null,
     ) {}
 
     public function toMultipart(): MultipartPayload

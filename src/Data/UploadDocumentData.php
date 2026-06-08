@@ -23,6 +23,7 @@ final readonly class UploadDocumentData
         public ?int $max_posts_per_slot = null,
         public ?bool $async_upload = null,
         public PlatformOptions $options = new PlatformOptions,
+        public ?string $idempotency_key = null,
     ) {
         if (trim($this->user) === '') {
             throw new InvalidArgumentException('user is required.');

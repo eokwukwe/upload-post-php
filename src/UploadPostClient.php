@@ -59,22 +59,30 @@ final readonly class UploadPostClient
 
     public function uploadVideo(UploadVideoData $data): UploadResponse
     {
-        return UploadResponse::fromArray($this->multipart('/upload', $data->toMultipart()->all()));
+        return UploadResponse::fromArray(
+            $this->multipart('/upload', $data->toMultipart()->all(), $this->idempotencyHeaders($data->idempotency_key))
+        );
     }
 
     public function uploadPhotos(UploadPhotosData $data): UploadResponse
     {
-        return UploadResponse::fromArray($this->multipart('/upload_photos', $data->toMultipart()->all()));
+        return UploadResponse::fromArray(
+            $this->multipart('/upload_photos', $data->toMultipart()->all(), $this->idempotencyHeaders($data->idempotency_key))
+        );
     }
 
     public function uploadText(UploadTextData $data): UploadResponse
     {
-        return UploadResponse::fromArray($this->multipart('/upload_text', $data->toMultipart()->all()));
+        return UploadResponse::fromArray(
+            $this->multipart('/upload_text', $data->toMultipart()->all(), $this->idempotencyHeaders($data->idempotency_key))
+        );
     }
 
     public function uploadDocument(UploadDocumentData $data): UploadResponse
     {
-        return UploadResponse::fromArray($this->multipart('/upload_document', $data->toMultipart()->all()));
+        return UploadResponse::fromArray(
+            $this->multipart('/upload_document', $data->toMultipart()->all(), $this->idempotencyHeaders($data->idempotency_key))
+        );
     }
 
     public function getStatus(string $request_id): StatusResponse
@@ -318,11 +326,16 @@ final readonly class UploadPostClient
      *  filename?:string,
      *  headers?:array<string, string>
      * }> $parts
+     * @param  array<string, string>  $headers
      * @return array<string, mixed>
      */
-    private function multipart(string $endpoint, array $parts): array
+    private function multipart(string $endpoint, array $parts, array $headers = []): array
     {
-        return $this->send(fn () => $this->http()->send('POST', $endpoint, ['multipart' => $parts]));
+        return $this->send(
+            fn () => $this->http()
+                ->withHeaders($headers)
+                ->send('POST', $endpoint, ['multipart' => $parts])
+        );
     }
 
     /**
@@ -399,5 +412,17 @@ final readonly class UploadPostClient
     private function clean(array $data): array
     {
         return array_filter($data, static fn (mixed $value): bool => $value !== null && $value !== '');
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function idempotencyHeaders(?string $idempotencyKey): array
+    {
+        if ($idempotencyKey === null || trim($idempotencyKey) === '') {
+            return [];
+        }
+
+        return ['X-Idempotency-Key' => $idempotencyKey];
     }
 }

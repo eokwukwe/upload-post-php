@@ -6,7 +6,10 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Softgeng\UploadPost\Data\CommonUploadData;
 use Softgeng\UploadPost\Data\Responses\UploadResponse;
+use Softgeng\UploadPost\Data\UploadDocumentData;
+use Softgeng\UploadPost\Data\UploadPhotosData;
 use Softgeng\UploadPost\Data\UploadTextData;
+use Softgeng\UploadPost\Data\UploadVideoData;
 use Softgeng\UploadPost\Enums\Platform;
 use Softgeng\UploadPost\Exceptions\UploadPostConnectionException;
 use Softgeng\UploadPost\Exceptions\UploadPostException;
@@ -30,6 +33,50 @@ it('posts text upload as multipart', function (): void {
     expect($response->request_id)->toBe('req_123');
 
     $http->assertSent(fn ($request): bool => $request->hasHeader('Authorization', 'Apikey test'));
+});
+
+it('sends idempotency keys with every upload type', function (): void {
+    $http = new HttpFactory;
+    $http->fake([
+        'https://api.upload-post.com/api/upload' => $http->response(['request_id' => 'req_video'], 200),
+        'https://api.upload-post.com/api/upload_photos' => $http->response(['request_id' => 'req_photos'], 200),
+        'https://api.upload-post.com/api/upload_text' => $http->response(['request_id' => 'req_text'], 200),
+        'https://api.upload-post.com/api/upload_document' => $http->response(['request_id' => 'req_document'], 200),
+    ]);
+
+    $client = new UploadPostClient(new UploadPostConfig(apiKey: 'test'), $http);
+
+    $common = new CommonUploadData(user: 'profile', platforms: [Platform::LinkedIn], title: 'Hello');
+
+    $client->uploadVideo(new UploadVideoData(
+        video: 'https://example.com/video.mp4',
+        common: $common,
+        idempotency_key: 'idem-video',
+    ));
+    $client->uploadPhotos(new UploadPhotosData(
+        photos: ['https://example.com/photo.jpg'],
+        common: $common,
+        idempotency_key: 'idem-photos',
+    ));
+    $client->uploadText(new UploadTextData(
+        common: $common,
+        idempotency_key: 'idem-text',
+    ));
+    $client->uploadDocument(new UploadDocumentData(
+        document: 'https://example.com/document.pdf',
+        user: 'profile',
+        title: 'Document',
+        idempotency_key: 'idem-document',
+    ));
+
+    $http->assertSent(fn ($request): bool => $request->url() === 'https://api.upload-post.com/api/upload'
+        && $request->hasHeader('X-Idempotency-Key', 'idem-video'));
+    $http->assertSent(fn ($request): bool => $request->url() === 'https://api.upload-post.com/api/upload_photos'
+        && $request->hasHeader('X-Idempotency-Key', 'idem-photos'));
+    $http->assertSent(fn ($request): bool => $request->url() === 'https://api.upload-post.com/api/upload_text'
+        && $request->hasHeader('X-Idempotency-Key', 'idem-text'));
+    $http->assertSent(fn ($request): bool => $request->url() === 'https://api.upload-post.com/api/upload_document'
+        && $request->hasHeader('X-Idempotency-Key', 'idem-document'));
 });
 
 it('uses the explicit api key when make receives an existing config', function (): void {

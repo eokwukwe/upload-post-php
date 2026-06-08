@@ -57,6 +57,7 @@ $response = $client->uploadVideo(new UploadVideoData(
         description: 'Standalone PHP usage',
         async_upload: true,
     ),
+    idempotency_key: 'unique-upload-key',
 ));
 
 $request_id = $response->request_id;
@@ -133,6 +134,8 @@ $response = $client->uploadDocument(new UploadDocumentData(
 The SDK accepts local files, remote `http(s)` URLs, `SplFileInfo`, and Laravel/Symfony uploaded file objects for media inputs.
 
 Platform-specific options are only included for platforms selected in `CommonUploadData::$platforms`, matching the official Node SDK behavior.
+
+All upload DTOs accept an optional `idempotency_key`, which is sent as the `X-Idempotency-Key` header to prevent duplicate uploads when a request is retried.
 
 ## Other API Methods
 

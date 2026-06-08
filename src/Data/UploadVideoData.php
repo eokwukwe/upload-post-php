@@ -12,7 +12,8 @@ final readonly class UploadVideoData
     public function __construct(
         public string|object $video,
         public CommonUploadData $common,
-        public PlatformOptions $options = new PlatformOptions
+        public PlatformOptions $options = new PlatformOptions,
+        public ?string $idempotency_key = null,
     ) {}
 
     public function toMultipart(): MultipartPayload

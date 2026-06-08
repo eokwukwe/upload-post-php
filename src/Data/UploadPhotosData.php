@@ -16,7 +16,8 @@ final readonly class UploadPhotosData
     public function __construct(
         public array $photos,
         public CommonUploadData $common,
-        public PlatformOptions $options = new PlatformOptions
+        public PlatformOptions $options = new PlatformOptions,
+        public ?string $idempotency_key = null,
     ) {
         if ($this->photos === []) {
             throw new InvalidArgumentException('At least one photo is required.');
