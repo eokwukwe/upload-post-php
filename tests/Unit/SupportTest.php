@@ -102,7 +102,9 @@ test('media rejects invalid uploaded file like objects', function (): void {
 
 test('media rejects missing files and unsupported values', function (): void {
     expect(fn (): array => Media::from('missing-file.jpg')->toMultipartPart('file'))
-        ->toThrow(InvalidArgumentException::class, 'Invalid media for file.');
+        ->toThrow(InvalidArgumentException::class, 'Invalid media for file.')
+        ->and(fn (): array => Media::from(new SplFileInfo('missing-file.jpg'))->toMultipartPart('spl'))
+        ->toThrow(InvalidArgumentException::class, 'File not found for spl.');
 });
 
 test('upload post config rejects blank api keys and trims base url', function (): void {

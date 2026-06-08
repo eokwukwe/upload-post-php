@@ -162,6 +162,68 @@ test('request DTOs can be converted to arrays', function (): void {
     ]);
 });
 
+test('request DTO array factories cover defensive branches', function (): void {
+    expect(AnalyticsQueryData::fromArray([
+        'platforms' => [123],
+        'page_urn' => 'urn:li:page:123',
+    ])->toArray())->toBe([
+        'platforms' => ['123'],
+        'page_urn' => 'urn:li:page:123',
+    ])->and(AnalyticsQueryData::fromArray(['platforms' => ''])->toArray())->toBe([]);
+
+    expect(PlatformOptions::empty()->toArray())->toBe([]);
+
+    $photos = UploadPhotosData::fromArray([
+        'photo' => 'https://example.com/photo.jpg',
+        'user' => 'profile',
+        'platforms' => 'instagram',
+        'idempotency_key' => 'idem-photo',
+    ]);
+
+    expect($photos->toArray())->toBe([
+        'photos' => ['https://example.com/photo.jpg'],
+        'common' => ['user' => 'profile', 'platforms' => ['instagram']],
+        'idempotency_key' => 'idem-photo',
+    ]);
+
+    expect(fn (): UploadPhotosData => new UploadPhotosData(
+        photos: [],
+        common: new CommonUploadData(user: 'profile', platforms: [Platform::Instagram]),
+    ))->toThrow(InvalidArgumentException::class, 'At least one photo is required.');
+
+    expect(fn (): UploadDocumentData => new UploadDocumentData(
+        document: 'https://example.com/document.pdf',
+        user: '',
+        title: 'Document',
+    ))->toThrow(InvalidArgumentException::class, 'user is required.')
+        ->and(fn (): UploadDocumentData => new UploadDocumentData(
+            document: 'https://example.com/document.pdf',
+            user: 'profile',
+            title: '',
+        ))->toThrow(InvalidArgumentException::class, 'title is required.');
+
+    $document = UploadDocumentData::fromArray([
+        'document' => 'https://example.com/document.pdf',
+        'user' => 'profile',
+        'title' => 'Document',
+        'scheduled_date' => 123,
+    ]);
+    $contents = array_column($document->toMultipart()->all(), 'contents', 'name');
+
+    expect($document->toArray()['scheduled_date'])->toBe('123')
+        ->and($contents['scheduled_date'])->toBe('123');
+
+    $datedDocument = new UploadDocumentData(
+        document: 'https://example.com/document.pdf',
+        user: 'profile',
+        title: 'Document',
+        scheduled_date: new DateTimeImmutable('2026-01-01 12:00:00', new DateTimeZone('UTC')),
+    );
+    $datedContents = array_column($datedDocument->toMultipart()->all(), 'contents', 'name');
+
+    expect($datedContents['scheduled_date'])->toBe('2026-01-01T12:00:00+00:00');
+});
+
 test('generate jwt data maps platform enums and removes blank values', function (): void {
     $data = (new GenerateJwtData(
         username: 'profile',

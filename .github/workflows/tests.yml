@@ -12,6 +12,10 @@ jobs:
     name: PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      id-token: write
+
     strategy:
       fail-fast: false
       matrix:
@@ -39,4 +43,14 @@ jobs:
         run: composer codecheck
 
       - name: Run coverage
-        run: composer test:coverage -- --min=90
+        run: composer test:coverage -- --coverage-clover=coverage.xml --min=90
+
+      # - name: Upload coverage to Codecov
+      #   if: matrix.php == '8.4'
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     files: ./coverage.xml
+      #     flags: php
+      #     name: php-${{ matrix.php }}
+      #     use_oidc: true
+      #     fail_ci_if_error: true

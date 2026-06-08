@@ -79,9 +79,11 @@ final readonly class Media
     {
         $handle = fopen($path, 'rb');
 
+        // @codeCoverageIgnoreStart
         if ($handle === false) {
             throw new InvalidArgumentException("File could not be opened for {$field}.");
         }
+        // @codeCoverageIgnoreEnd
 
         return $handle;
     }

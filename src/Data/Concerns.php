@@ -7,7 +7,6 @@ namespace Softgeng\UploadPost\Data;
 use BackedEnum;
 use DateTimeInterface;
 use Softgeng\UploadPost\Enums\Platform;
-use Softgeng\UploadPost\Support\MultipartPayload;
 
 trait Concerns
 {
@@ -40,14 +39,6 @@ trait Concerns
             $data,
             static fn (mixed $value): bool => ! in_array($value, [null, '', []], true)
         );
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected static function arrayFrom(mixed $value): array
-    {
-        return is_array($value) ? $value : [];
     }
 
     /**
@@ -197,17 +188,5 @@ trait Concerns
         }
 
         return PlatformOptions::fromArray(is_array($options) ? $options : $data);
-    }
-
-    /**
-     * @param  array<string,mixed>  $extra
-     */
-    protected function addFields(MultipartPayload $payload, array $extra): MultipartPayload
-    {
-        foreach ($extra as $key => $value) {
-            $payload->field($key, self::enumValue($value));
-        }
-
-        return $payload;
     }
 }

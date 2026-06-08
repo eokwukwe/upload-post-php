@@ -131,6 +131,28 @@ it('can throw the base exception for 422 responses when validation exceptions ar
     )))->toThrow(UploadPostException::class, 'Upload-Post API error [422]: Invalid payload');
 });
 
+it('uses response bodies and unknown fallbacks for api errors', function (): void {
+    $data = new UploadTextData(
+        common: new CommonUploadData(user: 'profile', platforms: [Platform::X], title: 'Hello'),
+    );
+
+    $bodyHttp = new HttpFactory;
+    $bodyHttp->fake([
+        'https://api.upload-post.com/api/upload_text' => $bodyHttp->response('Plain failure', 500),
+    ]);
+
+    expect(fn (): UploadResponse => (new UploadPostClient(new UploadPostConfig(apiKey: 'test'), $bodyHttp))->uploadText($data))
+        ->toThrow(UploadPostException::class, 'Upload-Post API error [500]: Plain failure');
+
+    $unknownHttp = new HttpFactory;
+    $unknownHttp->fake([
+        'https://api.upload-post.com/api/upload_text' => $unknownHttp->response('', 422),
+    ]);
+
+    expect(fn (): UploadResponse => (new UploadPostClient(new UploadPostConfig(apiKey: 'test'), $unknownHttp))->uploadText($data))
+        ->toThrow(UploadPostValidationException::class, 'Upload-Post API error [422]: Unknown API error');
+});
+
 it('wraps illuminate connection exceptions', function (): void {
     $http = new HttpFactory;
     $http->fake(fn () => throw new ConnectionException('network down'));

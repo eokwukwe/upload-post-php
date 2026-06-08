@@ -1,6 +1,7 @@
 # upload-post-php SDK
 
-![Tests](https://github.com/eokwukwe/upload-post-php/actions/workflows/test.yml/badge.svg)
+[![Tests](https://github.com/eokwukwe/upload-post-php/actions/workflows/tests.yml/badge.svg)](https://github.com/eokwukwe/upload-post-php/actions/workflows/tests.yml)
+[![Coverage](https://codecov.io/gh/eokwukwe/upload-post-php/branch/main/graph/badge.svg)](https://codecov.io/gh/eokwukwe/upload-post-php)
 
 PHP SDK for the Upload-Post API, with support for media uploads, scheduling, analytics, and optional Laravel integration.
 
@@ -24,7 +25,7 @@ To install directly from GitHub before a tagged release is available, add the re
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/Upload-Post/upload-post-php.git"
+      "url": "https://github.com/eokwukwe/upload-post-php.git"
     }
   ],
   "require": {
