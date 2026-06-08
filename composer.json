@@ -1,0 +1,75 @@
+{
+  "name": "softgeng/upload-post-php",
+  "description": "PHP SDK for the Upload-Post API, with support for media uploads, scheduling, analytics, and optional Laravel integration.",
+  "keywords": [
+    "upload-post",
+    "upload-post-api",
+    "social-media",
+    "sdk",
+    "laravel"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Okwukwe Ewurum",
+      "email": "okwukwe.ewurum@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "illuminate/http": "^10.0|^11.0|^12.0",
+    "illuminate/support": "^10.0|^11.0|^12.0"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.0",
+    "laravel/pint": "^1.29",
+    "orchestra/testbench": "^8.0|^9.0|^10.0",
+    "pestphp/pest": "^4.7.2",
+    "phpstan/phpstan": "^1.10|^2.0",
+    "phpunit/phpunit": "^12.5.28",
+    "rector/rector": "^2.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Softgeng\\UploadPost\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Softgeng\\UploadPost\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Softgeng\\UploadPost\\UploadPostServiceProvider"
+      ],
+      "aliases": {
+        "UploadPost": "Softgeng\\UploadPost\\Facades\\UploadPost"
+      }
+    }
+  },
+  "scripts": {
+    "test": "pest --colors=always",
+    "refactor": "rector process",
+    "test:refactor": "rector process --dry-run",
+    "lint": "pint",
+    "test:lint": "pint --test",
+    "test:analyse": "phpstan analyse --ansi",
+    "codecheck": [
+      "@test:refactor",
+      "@test:lint",
+      "@test:analyse",
+      "@test"
+    ]
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
