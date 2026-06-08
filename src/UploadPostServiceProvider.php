@@ -12,18 +12,21 @@ final class UploadPostServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/upload-post.php', 'upload-post');
+        $this->mergeConfigFrom(__DIR__ . '/../config/upload-post.php', 'upload-post');
 
-        $this->app->singleton(UploadPostClient::class, fn (): UploadPostClient => new UploadPostClient(
-            UploadPostConfig::fromArray(config('upload-post')),
-            $this->app->make(HttpFactory::class),
-        ));
+        $this->app->singleton(
+            UploadPostClient::class,
+            fn(): UploadPostClient => new UploadPostClient(
+                UploadPostConfig::fromArray(config('upload-post')),
+                $this->app->make(HttpFactory::class),
+            )
+        );
     }
 
     public function boot(): void
     {
         $this->publishes([
-            __DIR__.'/../config/upload-post.php' => config_path('upload-post.php'),
+            __DIR__ . '/../config/upload-post.php' => config_path('upload-post.php'),
         ], 'upload-post-config');
     }
 }

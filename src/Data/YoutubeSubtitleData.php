@@ -9,7 +9,12 @@ use Softgeng\UploadPost\Support\MultipartPayload;
 
 final readonly class YoutubeSubtitleData
 {
-    public function __construct(public string $language, public string|Media|null $file = null, public ?string $url = null, public ?string $name = null) {}
+    public function __construct(
+        public string $language,
+        public string|Media|null $file = null,
+        public ?string $url = null,
+        public ?string $name = null
+    ) {}
 
     public function addTo(MultipartPayload $payload, int $index): void
     {

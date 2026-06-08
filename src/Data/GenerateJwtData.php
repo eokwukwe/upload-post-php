@@ -8,7 +8,9 @@ use Softgeng\UploadPost\Enums\Platform;
 
 final readonly class GenerateJwtData
 {
-    /** @param list<Platform|string> $platforms */
+    /** 
+     * @param list<Platform|string> $platforms 
+     */
     public function __construct(
         public string $username,
         public ?string $redirect_url = null,
@@ -22,10 +24,15 @@ final readonly class GenerateJwtData
         public ?string $language = null,
     ) {}
 
-    /** @return array<string,mixed> */
+    /** 
+     * @return array<string,mixed> 
+     */
     public function toArray(): array
     {
-        $platforms = array_map(static fn (\Softgeng\UploadPost\Enums\Platform|string $p) => $p instanceof Platform ? $p->value : $p, $this->platforms);
+        $platforms = array_map(
+            static fn(\Softgeng\UploadPost\Enums\Platform|string $p) => $p instanceof Platform ? $p->value : $p,
+            $this->platforms
+        );
 
         return array_filter([
             'username' => $this->username,
@@ -38,6 +45,6 @@ final readonly class GenerateJwtData
             'connect_title' => $this->connect_title,
             'connect_description' => $this->connect_description,
             'language' => $this->language,
-        ], static fn ($v): bool => $v !== null && $v !== '');
+        ], static fn($v): bool => $v !== null && $v !== '');
     }
 }

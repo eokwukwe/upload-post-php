@@ -6,7 +6,9 @@ namespace Softgeng\UploadPost\Support;
 
 final class Arr
 {
-    /** @param array<int|string, mixed> $array */
+    /** 
+     * @param array<int|string, mixed> $array 
+     */
     public static function get(array $array, string $key, mixed $default = null): mixed
     {
         if (array_key_exists($key, $array)) {

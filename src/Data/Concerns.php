@@ -30,7 +30,9 @@ trait Concerns
         return $date instanceof DateTimeInterface ? $date->format(DateTimeInterface::ATOM) : $date;
     }
 
-    /** @param array<string,mixed> $extra */
+    /** 
+     * @param array<string,mixed> $extra 
+     */
     protected function addFields(MultipartPayload $payload, array $extra): MultipartPayload
     {
         foreach ($extra as $key => $value) {

@@ -46,7 +46,6 @@ final readonly class UploadPostClient
         return new self(new UploadPostConfig(
             apiKey: $api_key,
             baseUrl: $config->baseUrl,
-            source: $config->source,
             timeout: $config->timeout,
             connectTimeout: $config->connectTimeout,
             retryTimes: $config->retryTimes,
@@ -87,28 +86,44 @@ final readonly class UploadPostClient
 
     public function getHistory(int $page = 1, int $limit = 20): ListResponse
     {
-        return ListResponse::fromArray($this->get('/uploadposts/history', ['page' => $page, 'limit' => $limit]));
+        return ListResponse::fromArray(
+            $this->get('/uploadposts/history', ['page' => $page, 'limit' => $limit])
+        );
     }
 
     public function getAnalytics(string $profileUsername, ?AnalyticsQueryData $query = null): GenericResponse
     {
-        return GenericResponse::fromArray($this->get('/analytics/'.rawurlencode($profileUsername), $query?->toQuery() ?? []));
+        return GenericResponse::fromArray(
+            $this->get('/analytics/' . rawurlencode($profileUsername), $query?->toQuery() ?? [])
+        );
     }
 
     /** @param array<string,mixed> $query */
     public function getTotalImpressions(string $profileUsername, array $query = []): GenericResponse
     {
-        return GenericResponse::fromArray($this->get('/uploadposts/total-impressions/'.rawurlencode($profileUsername), $query));
+        return GenericResponse::fromArray(
+            $this->get('/uploadposts/total-impressions/' . rawurlencode($profileUsername), $query)
+        );
     }
 
     public function getPostAnalytics(string $request_id): GenericResponse
     {
-        return GenericResponse::fromArray($this->get('/uploadposts/post-analytics/'.rawurlencode($request_id)));
+        return GenericResponse::fromArray(
+            $this->get('/uploadposts/post-analytics/' . rawurlencode($request_id))
+        );
     }
 
-    public function getPostAnalyticsByPlatformId(string $platform_post_id, string $platform, string $user): GenericResponse
-    {
-        return GenericResponse::fromArray($this->get('/uploadposts/post-analytics', ['platform_post_id' => $platform_post_id, 'platform' => $platform, 'user' => $user]));
+    public function getPostAnalyticsByPlatformId(
+        string $platform_post_id,
+        string $platform,
+        string $user
+    ): GenericResponse {
+        return GenericResponse::fromArray(
+            $this->get(
+                '/uploadposts/post-analytics',
+                ['platform_post_id' => $platform_post_id, 'platform' => $platform, 'user' => $user]
+            )
+        );
     }
 
     public function getPlatformMetrics(): GenericResponse
@@ -119,7 +134,9 @@ final readonly class UploadPostClient
     /** @param array<string,string> $query */
     public function getMedia(string $platform, string $user, array $query = []): ListResponse
     {
-        return ListResponse::fromArray($this->get('/uploadposts/media', ['platform' => $platform, 'user' => $user, ...$query]));
+        return ListResponse::fromArray(
+            $this->get('/uploadposts/media', ['platform' => $platform, 'user' => $user, ...$query])
+        );
     }
 
     public function listScheduled(): ListResponse
@@ -129,12 +146,17 @@ final readonly class UploadPostClient
 
     public function cancelScheduled(string $job_id): GenericResponse
     {
-        return GenericResponse::fromArray($this->delete('/uploadposts/schedule/'.rawurlencode($job_id)));
+        return GenericResponse::fromArray($this->delete('/uploadposts/schedule/' . rawurlencode($job_id)));
     }
 
     public function editScheduled(string $job_id, string $scheduled_date, ?string $timezone = null): GenericResponse
     {
-        return GenericResponse::fromArray($this->patch('/uploadposts/schedule/'.rawurlencode($job_id), $this->clean(['scheduled_date' => $scheduled_date, 'timezone' => $timezone])));
+        return GenericResponse::fromArray(
+            $this->patch(
+                '/uploadposts/schedule/' . rawurlencode($job_id),
+                $this->clean(['scheduled_date' => $scheduled_date, 'timezone' => $timezone])
+            )
+        );
     }
 
     public function listUsers(): ListResponse
@@ -187,42 +209,77 @@ final readonly class UploadPostClient
     /** @param array<string,string> $query */
     public function getPostComments(string $user, array $query = []): ListResponse
     {
-        return ListResponse::fromArray($this->get('/uploadposts/comments', ['platform' => 'instagram', 'user' => $user, ...$query]));
+        return ListResponse::fromArray(
+            $this->get('/uploadposts/comments', ['platform' => 'instagram', 'user' => $user, ...$query])
+        );
     }
 
     public function replyToComment(string $user, string $commentId, string $message): GenericResponse
     {
-        return GenericResponse::fromArray($this->post('/uploadposts/comments/reply', ['platform' => 'instagram', 'user' => $user, 'comment_id' => $commentId, 'message' => $message]));
+        return GenericResponse::fromArray(
+            $this->post(
+                '/uploadposts/comments/reply',
+                [
+                    'platform' => 'instagram',
+                    'user' => $user,
+                    'comment_id' => $commentId,
+                    'message' => $message
+                ]
+            )
+        );
     }
 
     public function publicReplyToComment(string $user, string $commentId, string $message): GenericResponse
     {
-        return GenericResponse::fromArray($this->post('/uploadposts/comments/public-reply', ['platform' => 'instagram', 'user' => $user, 'comment_id' => $commentId, 'message' => $message]));
+        return GenericResponse::fromArray(
+            $this->post(
+                '/uploadposts/comments/public-reply',
+                [
+                    'platform' => 'instagram',
+                    'user' => $user,
+                    'comment_id' => $commentId,
+                    'message' => $message
+                ]
+            )
+        );
     }
 
     public function getFacebookPages(?string $profile = null): ListResponse
     {
-        return ListResponse::fromArray($this->get('/uploadposts/facebook/pages', $this->clean(['profile' => $profile])));
+        return ListResponse::fromArray(
+            $this->get('/uploadposts/facebook/pages', $this->clean(['profile' => $profile]))
+        );
     }
 
     public function getLinkedinPages(?string $profile = null): ListResponse
     {
-        return ListResponse::fromArray($this->get('/uploadposts/linkedin/pages', $this->clean(['profile' => $profile])));
+        return ListResponse::fromArray(
+            $this->get('/uploadposts/linkedin/pages', $this->clean(['profile' => $profile]))
+        );
     }
 
     public function getPinterestBoards(?string $profile = null): ListResponse
     {
-        return ListResponse::fromArray($this->get('/uploadposts/pinterest/boards', $this->clean(['profile' => $profile])));
+        return ListResponse::fromArray(
+            $this->get('/uploadposts/pinterest/boards', $this->clean(['profile' => $profile]))
+        );
     }
 
     public function getGoogleBusinessLocations(?string $profile = null): ListResponse
     {
-        return ListResponse::fromArray($this->get('/uploadposts/google-business/locations', $this->clean(['profile' => $profile])));
+        return ListResponse::fromArray(
+            $this->get('/uploadposts/google-business/locations', $this->clean(['profile' => $profile]))
+        );
     }
 
     public function selectGoogleBusinessLocation(string $locationId, ?string $profile = null): GenericResponse
     {
-        return GenericResponse::fromArray($this->post('/uploadposts/google-business/locations/select', $this->clean(['location_id' => $locationId, 'profile' => $profile])));
+        return GenericResponse::fromArray(
+            $this->post(
+                '/uploadposts/google-business/locations/select',
+                $this->clean(['location_id' => $locationId, 'profile' => $profile])
+            )
+        );
     }
 
     private function http(): PendingRequest
@@ -234,18 +291,22 @@ final readonly class UploadPostClient
             ->connectTimeout($this->config->connectTimeout)
             ->retry($this->config->retryTimes, $this->config->retrySleepMs, throw: false)
             ->withHeaders([
-                'Authorization' => 'Apikey '.$this->config->apiKey,
-                'X-Upload-Post-Source' => $this->config->source,
+                'Authorization' => 'Apikey ' . $this->config->apiKey
             ]);
     }
 
     /**
-     * @param  list<array{name:string, contents:mixed, filename?:string, headers?:array<string, string>}>  $parts
+     * @param  list<array{
+     *  name:string, 
+     *  contents:mixed, 
+     *  filename?:string, 
+     *  headers?:array<string, string>
+     * }> $parts
      * @return array<string, mixed>
      */
     private function multipart(string $endpoint, array $parts): array
     {
-        return $this->send(fn () => $this->http()->send('POST', $endpoint, ['multipart' => $parts]));
+        return $this->send(fn() => $this->http()->send('POST', $endpoint, ['multipart' => $parts]));
     }
 
     /**
@@ -254,7 +315,7 @@ final readonly class UploadPostClient
      */
     private function get(string $endpoint, array $query = []): array
     {
-        return $this->send(fn () => $this->http()->get($endpoint, $query));
+        return $this->send(fn() => $this->http()->get($endpoint, $query));
     }
 
     /**
@@ -263,7 +324,7 @@ final readonly class UploadPostClient
      */
     private function post(string $endpoint, array $body = []): array
     {
-        return $this->send(fn () => $this->http()->asJson()->post($endpoint, $body));
+        return $this->send(fn() => $this->http()->asJson()->post($endpoint, $body));
     }
 
     /**
@@ -272,7 +333,7 @@ final readonly class UploadPostClient
      */
     private function patch(string $endpoint, array $body = []): array
     {
-        return $this->send(fn () => $this->http()->asJson()->patch($endpoint, $body));
+        return $this->send(fn() => $this->http()->asJson()->patch($endpoint, $body));
     }
 
     /**
@@ -281,7 +342,7 @@ final readonly class UploadPostClient
      */
     private function delete(string $endpoint, array $body = []): array
     {
-        return $this->send(fn () => $this->http()->asJson()->delete($endpoint, $body));
+        return $this->send(fn() => $this->http()->asJson()->delete($endpoint, $body));
     }
 
     /** @return array<string, mixed> */
@@ -291,9 +352,15 @@ final readonly class UploadPostClient
             /** @var Response $response */
             $response = $request();
         } catch (ConnectionException $e) {
-            throw new UploadPostConnectionException('Could not connect to Upload-Post API: '.$e->getMessage(), previous: $e);
+            throw new UploadPostConnectionException(
+                'Could not connect to Upload-Post API: ' . $e->getMessage(),
+                previous: $e
+            );
         } catch (Throwable $e) {
-            throw new UploadPostConnectionException('Upload-Post request failed: '.$e->getMessage(), previous: $e);
+            throw new UploadPostConnectionException(
+                'Upload-Post request failed: ' . $e->getMessage(),
+                previous: $e
+            );
         }
 
         if ($response->failed()) {
@@ -315,6 +382,6 @@ final readonly class UploadPostClient
      */
     private function clean(array $data): array
     {
-        return array_filter($data, static fn (mixed $value): bool => $value !== null && $value !== '');
+        return array_filter($data, static fn(mixed $value): bool => $value !== null && $value !== '');
     }
 }

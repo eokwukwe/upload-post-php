@@ -8,7 +8,9 @@ use Softgeng\UploadPost\Support\Arr;
 
 abstract readonly class ApiResponse
 {
-    /** @param array<int|string, mixed> $raw */
+    /** 
+     * @param array<int|string, mixed> $raw 
+     */
     public function __construct(public array $raw) {}
 
     public function get(string $key, mixed $default = null): mixed
@@ -16,7 +18,9 @@ abstract readonly class ApiResponse
         return Arr::get($this->raw, $key, $default);
     }
 
-    /** @return array<int|string, mixed> */
+    /** 
+     * @return array<int|string, mixed> 
+     */
     public function toArray(): array
     {
         return $this->raw;

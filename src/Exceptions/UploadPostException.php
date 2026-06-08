@@ -10,7 +10,9 @@ use Throwable;
 
 class UploadPostException extends Exception
 {
-    /** @param array<string,mixed>|null $payload */
+    /** 
+     * @param array<string,mixed>|null $payload 
+     */
     public function __construct(
         string $message,
         public readonly ?int $status = null,

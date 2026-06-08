@@ -17,9 +17,6 @@ final readonly class CommonUploadData
     /**
      * Common Upload-Post API fields.
      *
-     * Keep these property names snake_case intentionally. They mirror the API request keys,
-     * which keeps the SDK predictable and avoids a fragile camelCase <-> snake_case mapping layer.
-     *
      * @param  list<Platform|string>  $platforms
      * @param  list<Media|string>  $first_comment_media
      */

@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["analyse", "phpstan", "Softgeng"]
+  "cSpell.words": ["analyse", "phpstan", "Softgeng", "uploadposts"],
+  "editor.wordWrapColumn": 110
 }

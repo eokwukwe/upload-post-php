@@ -19,7 +19,7 @@ final readonly class UploadTextData
         $payload = new MultipartPayload;
         $this->common->addCommonTo($payload);
         $payload->field('link_url', $this->link_url);
-        $this->options->addForText($payload, $this->link_url);
+        $this->options->addForText($payload, $this->common->platforms, $this->link_url);
 
         return $payload;
     }

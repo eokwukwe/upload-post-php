@@ -8,13 +8,21 @@ use Softgeng\UploadPost\Support\Arr;
 
 final readonly class StatusResponse extends ApiResponse
 {
-    /** @param array<string,mixed> $raw */
-    public function __construct(array $raw, public ?string $status = null, public ?string $request_id = null, public ?string $job_id = null)
-    {
+    /** 
+     * @param array<string,mixed> $raw
+     */
+    public function __construct(
+        array $raw,
+        public ?string $status = null,
+        public ?string $request_id = null,
+        public ?string $job_id = null
+    ) {
         parent::__construct($raw);
     }
 
-    /** @param array<string,mixed> $raw */
+    /** 
+     * @param array<string,mixed> $raw
+     */
     public static function fromArray(array $raw): self
     {
         return new self(

@@ -8,7 +8,7 @@ use Illuminate\Http\Client\Response;
 
 final class UploadPostValidationException extends UploadPostException
 {
-    public static function fromResponse(Response $response): UploadPostValidationException
+    public static function fromResponse(Response $response): self
     {
         $payload = $response->json();
         $payload = is_array($payload) ? $payload : null;

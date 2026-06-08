@@ -8,6 +8,7 @@ use Softgeng\UploadPost\Enums\FacebookMediaType;
 use Softgeng\UploadPost\Enums\FacebookVideoState;
 use Softgeng\UploadPost\Enums\InstagramMediaType;
 use Softgeng\UploadPost\Enums\LinkedinVisibility;
+use Softgeng\UploadPost\Enums\Platform;
 use Softgeng\UploadPost\Enums\TiktokPostMode;
 use Softgeng\UploadPost\Enums\TiktokPrivacyLevel;
 use Softgeng\UploadPost\Enums\XReplySettings;
@@ -17,7 +18,6 @@ use Softgeng\UploadPost\Support\MultipartPayload;
 
 final readonly class PlatformOptions
 {
-    // Property names intentionally mirror Upload-Post API request keys (snake_case).
     use Concerns;
 
     /**
@@ -117,42 +117,98 @@ final readonly class PlatformOptions
         return new self;
     }
 
-    public function addForVideo(MultipartPayload $payload): MultipartPayload
+    /** 
+     * @param list<Platform|string> $platforms 
+     */
+    public function addForVideo(MultipartPayload $payload, array $platforms): MultipartPayload
     {
-        $this->addTiktok($payload, true);
-        $this->addInstagram($payload, true);
-        $this->addYoutube($payload);
-        $this->addLinkedin($payload, false);
-        $this->addFacebook($payload, true, false);
-        $this->addPinterest($payload, true);
-        $this->addX($payload, false);
-        $this->addThreads($payload);
+        if ($this->hasPlatform($platforms, Platform::TikTok)) {
+            $this->addTiktok($payload, true);
+        }
+        if ($this->hasPlatform($platforms, Platform::Instagram)) {
+            $this->addInstagram($payload, true);
+        }
+        if ($this->hasPlatform($platforms, Platform::YouTube)) {
+            $this->addYoutube($payload);
+        }
+        if ($this->hasPlatform($platforms, Platform::LinkedIn)) {
+            $this->addLinkedin($payload, false);
+        }
+        if ($this->hasPlatform($platforms, Platform::Facebook)) {
+            $this->addFacebook($payload, true, false);
+        }
+        if ($this->hasPlatform($platforms, Platform::Pinterest)) {
+            $this->addPinterest($payload, true);
+        }
+        if ($this->hasPlatform($platforms, Platform::X)) {
+            $this->addX($payload, false);
+        }
+        if ($this->hasPlatform($platforms, Platform::Threads)) {
+            $this->addThreads($payload);
+        }
 
         return $payload;
     }
 
-    public function addForPhotos(MultipartPayload $payload): MultipartPayload
+    /** 
+     * @param list<Platform|string> $platforms 
+     */
+    public function addForPhotos(MultipartPayload $payload, array $platforms): MultipartPayload
     {
-        $this->addTiktok($payload, false);
-        $this->addInstagram($payload, false);
-        $this->addLinkedin($payload, false);
-        $this->addFacebook($payload, false, false);
-        $this->addPinterest($payload, false);
-        $this->addX($payload, false);
-        $this->addThreads($payload);
-        $this->addReddit($payload, false);
+        if ($this->hasPlatform($platforms, Platform::TikTok)) {
+            $this->addTiktok($payload, false);
+        }
+        if ($this->hasPlatform($platforms, Platform::Instagram)) {
+            $this->addInstagram($payload, false);
+        }
+        if ($this->hasPlatform($platforms, Platform::LinkedIn)) {
+            $this->addLinkedin($payload, false);
+        }
+        if ($this->hasPlatform($platforms, Platform::Facebook)) {
+            $this->addFacebook($payload, false, false);
+        }
+        if ($this->hasPlatform($platforms, Platform::Pinterest)) {
+            $this->addPinterest($payload, false);
+        }
+        if ($this->hasPlatform($platforms, Platform::X)) {
+            $this->addX($payload, false);
+        }
+        if ($this->hasPlatform($platforms, Platform::Threads)) {
+            $this->addThreads($payload);
+        }
+        if ($this->hasPlatform($platforms, Platform::Reddit)) {
+            $this->addReddit($payload, false);
+        }
 
         return $payload;
     }
 
-    public function addForText(MultipartPayload $payload, ?string $link_url = null): MultipartPayload
-    {
-        $this->addLinkedin($payload, true, $link_url);
-        $this->addFacebook($payload, false, true);
-        $this->addX($payload, true);
-        $this->addThreads($payload);
-        $this->addReddit($payload, true, $link_url);
-        $payload->field('bluesky_link_url', $this->bluesky_link_url ?? $link_url);
+    /** 
+     * @param list<Platform|string> $platforms 
+     */
+    public function addForText(
+        MultipartPayload $payload,
+        array $platforms,
+        ?string $link_url = null
+    ): MultipartPayload {
+        if ($this->hasPlatform($platforms, Platform::LinkedIn)) {
+            $this->addLinkedin($payload, true, $link_url);
+        }
+        if ($this->hasPlatform($platforms, Platform::Facebook)) {
+            $this->addFacebook($payload, false, true);
+        }
+        if ($this->hasPlatform($platforms, Platform::X)) {
+            $this->addX($payload, true);
+        }
+        if ($this->hasPlatform($platforms, Platform::Threads)) {
+            $this->addThreads($payload);
+        }
+        if ($this->hasPlatform($platforms, Platform::Reddit)) {
+            $this->addReddit($payload, true, $link_url);
+        }
+        if ($this->hasPlatform($platforms, Platform::Bluesky)) {
+            $payload->field('bluesky_link_url', $this->bluesky_link_url ?? $link_url);
+        }
 
         return $payload;
     }
@@ -225,8 +281,11 @@ final readonly class PlatformOptions
         return $p;
     }
 
-    private function addLinkedin(MultipartPayload $p, bool $is_text, ?string $link_url = null): MultipartPayload
-    {
+    private function addLinkedin(
+        MultipartPayload $p,
+        bool $is_text,
+        ?string $link_url = null
+    ): MultipartPayload {
         $p->field('visibility', self::enumValue($this->linkedin_visibility))
             ->field('target_linkedin_page_id', $this->target_linkedin_page_id);
         if ($is_text) {
@@ -311,5 +370,13 @@ final readonly class PlatformOptions
         }
 
         return $p;
+    }
+
+    /** 
+     * @param list<Platform|string> $platforms
+     */
+    private function hasPlatform(array $platforms, Platform $platform): bool
+    {
+        return in_array($platform->value, self::platformsToValues($platforms), true);
     }
 }

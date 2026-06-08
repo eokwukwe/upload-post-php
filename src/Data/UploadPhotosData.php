@@ -10,9 +10,14 @@ use Softgeng\UploadPost\Support\MultipartPayload;
 
 final readonly class UploadPhotosData
 {
-    /** @param list<string|object> $photos */
-    public function __construct(public array $photos, public CommonUploadData $common, public PlatformOptions $options = new PlatformOptions)
-    {
+    /** 
+     * @param list<string|object> $photos 
+     */
+    public function __construct(
+        public array $photos,
+        public CommonUploadData $common,
+        public PlatformOptions $options = new PlatformOptions
+    ) {
         if ($this->photos === []) {
             throw new InvalidArgumentException('At least one photo is required.');
         }
@@ -25,7 +30,7 @@ final readonly class UploadPhotosData
             $payload->media('photos[]', Media::from($photo));
         }
         $this->common->addCommonTo($payload);
-        $this->options->addForPhotos($payload);
+        $this->options->addForPhotos($payload, $this->common->platforms);
 
         return $payload;
     }
