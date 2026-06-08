@@ -37,8 +37,11 @@ final readonly class UploadPostClient
         $this->httpFactory = $httpFactory ?? new HttpFactory;
     }
 
-    public static function make(string $api_key, ?UploadPostConfig $config = null, ?HttpFactory $httpFactory = null): self
-    {
+    public static function make(
+        string $api_key,
+        ?UploadPostConfig $config = null,
+        ?HttpFactory $httpFactory = null
+    ): self {
         if (! $config instanceof UploadPostConfig) {
             return new self(new UploadPostConfig(apiKey: $api_key), $httpFactory);
         }
@@ -94,22 +97,24 @@ final readonly class UploadPostClient
     public function getAnalytics(string $profileUsername, ?AnalyticsQueryData $query = null): GenericResponse
     {
         return GenericResponse::fromArray(
-            $this->get('/analytics/'.rawurlencode($profileUsername), $query?->toQuery() ?? [])
+            $this->get('/analytics/' . rawurlencode($profileUsername), $query?->toQuery() ?? [])
         );
     }
 
-    /** @param array<string,mixed> $query */
+    /** 
+     * @param array<string,mixed> $query
+     */
     public function getTotalImpressions(string $profileUsername, array $query = []): GenericResponse
     {
         return GenericResponse::fromArray(
-            $this->get('/uploadposts/total-impressions/'.rawurlencode($profileUsername), $query)
+            $this->get('/uploadposts/total-impressions/' . rawurlencode($profileUsername), $query)
         );
     }
 
     public function getPostAnalytics(string $request_id): GenericResponse
     {
         return GenericResponse::fromArray(
-            $this->get('/uploadposts/post-analytics/'.rawurlencode($request_id))
+            $this->get('/uploadposts/post-analytics/' . rawurlencode($request_id))
         );
     }
 
@@ -131,7 +136,9 @@ final readonly class UploadPostClient
         return GenericResponse::fromArray($this->get('/uploadposts/platform-metrics'));
     }
 
-    /** @param array<string,string> $query */
+    /** 
+     * @param array<string,string> $query 
+     */
     public function getMedia(string $platform, string $user, array $query = []): ListResponse
     {
         return ListResponse::fromArray(
@@ -146,14 +153,17 @@ final readonly class UploadPostClient
 
     public function cancelScheduled(string $job_id): GenericResponse
     {
-        return GenericResponse::fromArray($this->delete('/uploadposts/schedule/'.rawurlencode($job_id)));
+        return GenericResponse::fromArray($this->delete('/uploadposts/schedule/' . rawurlencode($job_id)));
     }
 
-    public function editScheduled(string $job_id, string $scheduled_date, ?string $timezone = null): GenericResponse
-    {
+    public function editScheduled(
+        string $job_id,
+        string $scheduled_date,
+        ?string $timezone = null
+    ): GenericResponse {
         return GenericResponse::fromArray(
             $this->patch(
-                '/uploadposts/schedule/'.rawurlencode($job_id),
+                '/uploadposts/schedule/' . rawurlencode($job_id),
                 $this->clean(['scheduled_date' => $scheduled_date, 'timezone' => $timezone])
             )
         );
@@ -189,7 +199,9 @@ final readonly class UploadPostClient
         return GenericResponse::fromArray($this->get('/uploadposts/users/preferences'));
     }
 
-    /** @param array<string,mixed> $preferences */
+    /** 
+     * @param array<string,mixed> $preferences 
+     */
     public function updateUserPreferences(array $preferences): GenericResponse
     {
         return GenericResponse::fromArray($this->post('/uploadposts/users/preferences', $preferences));
@@ -200,13 +212,17 @@ final readonly class UploadPostClient
         return GenericResponse::fromArray($this->get('/uploadposts/notification-config'));
     }
 
-    /** @param array<string,mixed> $config */
+    /** 
+     * @param array<string,mixed> $config 
+     */
     public function updateNotificationConfig(array $config): GenericResponse
     {
         return GenericResponse::fromArray($this->post('/uploadposts/notification-config', $config));
     }
 
-    /** @param array<string,string> $query */
+    /** 
+     * @param array<string,string> $query 
+     */
     public function getPostComments(string $user, array $query = []): ListResponse
     {
         return ListResponse::fromArray(
@@ -291,7 +307,7 @@ final readonly class UploadPostClient
             ->connectTimeout($this->config->connectTimeout)
             ->retry($this->config->retryTimes, $this->config->retrySleepMs, throw: false)
             ->withHeaders([
-                'Authorization' => 'Apikey '.$this->config->apiKey,
+                'Authorization' => 'Apikey ' . $this->config->apiKey,
             ]);
     }
 
@@ -306,7 +322,7 @@ final readonly class UploadPostClient
      */
     private function multipart(string $endpoint, array $parts): array
     {
-        return $this->send(fn () => $this->http()->send('POST', $endpoint, ['multipart' => $parts]));
+        return $this->send(fn() => $this->http()->send('POST', $endpoint, ['multipart' => $parts]));
     }
 
     /**
@@ -315,7 +331,7 @@ final readonly class UploadPostClient
      */
     private function get(string $endpoint, array $query = []): array
     {
-        return $this->send(fn () => $this->http()->get($endpoint, $query));
+        return $this->send(fn() => $this->http()->get($endpoint, $query));
     }
 
     /**
@@ -324,7 +340,7 @@ final readonly class UploadPostClient
      */
     private function post(string $endpoint, array $body = []): array
     {
-        return $this->send(fn () => $this->http()->asJson()->post($endpoint, $body));
+        return $this->send(fn() => $this->http()->asJson()->post($endpoint, $body));
     }
 
     /**
@@ -333,7 +349,7 @@ final readonly class UploadPostClient
      */
     private function patch(string $endpoint, array $body = []): array
     {
-        return $this->send(fn () => $this->http()->asJson()->patch($endpoint, $body));
+        return $this->send(fn() => $this->http()->asJson()->patch($endpoint, $body));
     }
 
     /**
@@ -342,7 +358,7 @@ final readonly class UploadPostClient
      */
     private function delete(string $endpoint, array $body = []): array
     {
-        return $this->send(fn () => $this->http()->asJson()->delete($endpoint, $body));
+        return $this->send(fn() => $this->http()->asJson()->delete($endpoint, $body));
     }
 
     /** @return array<string, mixed> */
@@ -353,12 +369,12 @@ final readonly class UploadPostClient
             $response = $request();
         } catch (ConnectionException $e) {
             throw new UploadPostConnectionException(
-                'Could not connect to Upload-Post API: '.$e->getMessage(),
+                'Could not connect to Upload-Post API: ' . $e->getMessage(),
                 previous: $e
             );
         } catch (Throwable $e) {
             throw new UploadPostConnectionException(
-                'Upload-Post request failed: '.$e->getMessage(),
+                'Upload-Post request failed: ' . $e->getMessage(),
                 previous: $e
             );
         }
@@ -382,6 +398,6 @@ final readonly class UploadPostClient
      */
     private function clean(array $data): array
     {
-        return array_filter($data, static fn (mixed $value): bool => $value !== null && $value !== '');
+        return array_filter($data, static fn(mixed $value): bool => $value !== null && $value !== '');
     }
 }
