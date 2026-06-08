@@ -10,8 +10,8 @@ use Softgeng\UploadPost\Support\MultipartPayload;
 
 final readonly class UploadPhotosData
 {
-    /** 
-     * @param list<string|object> $photos 
+    /**
+     * @param  list<string|object>  $photos
      */
     public function __construct(
         public array $photos,

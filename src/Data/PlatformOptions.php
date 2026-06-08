@@ -117,8 +117,8 @@ final readonly class PlatformOptions
         return new self;
     }
 
-    /** 
-     * @param list<Platform|string> $platforms 
+    /**
+     * @param  list<Platform|string>  $platforms
      */
     public function addForVideo(MultipartPayload $payload, array $platforms): MultipartPayload
     {
@@ -150,8 +150,8 @@ final readonly class PlatformOptions
         return $payload;
     }
 
-    /** 
-     * @param list<Platform|string> $platforms 
+    /**
+     * @param  list<Platform|string>  $platforms
      */
     public function addForPhotos(MultipartPayload $payload, array $platforms): MultipartPayload
     {
@@ -183,8 +183,8 @@ final readonly class PlatformOptions
         return $payload;
     }
 
-    /** 
-     * @param list<Platform|string> $platforms 
+    /**
+     * @param  list<Platform|string>  $platforms
      */
     public function addForText(
         MultipartPayload $payload,
@@ -372,8 +372,8 @@ final readonly class PlatformOptions
         return $p;
     }
 
-    /** 
-     * @param list<Platform|string> $platforms
+    /**
+     * @param  list<Platform|string>  $platforms
      */
     private function hasPlatform(array $platforms, Platform $platform): bool
     {

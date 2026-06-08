@@ -8,16 +8,16 @@ use Softgeng\UploadPost\Support\Arr;
 
 final readonly class JwtResponse extends ApiResponse
 {
-    /** 
-     * @param array<string,mixed> $raw 
+    /**
+     * @param  array<string,mixed>  $raw
      */
     public function __construct(array $raw, public ?string $jwt = null, public ?string $url = null)
     {
         parent::__construct($raw);
     }
 
-    /** 
-     * @param array<string,mixed> $raw 
+    /**
+     * @param  array<string,mixed>  $raw
      */
     public static function fromArray(array $raw): self
     {

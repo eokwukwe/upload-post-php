@@ -17,8 +17,8 @@ final readonly class ListResponse extends ApiResponse
         parent::__construct($raw);
     }
 
-    /** 
-     * @param array<int|string, mixed> $raw 
+    /**
+     * @param  array<int|string, mixed>  $raw
      */
     public static function fromArray(array $raw): self
     {

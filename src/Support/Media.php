@@ -30,12 +30,12 @@ final readonly class Media
         return is_string($this->value) && preg_match('/^https?:\/\//i', $this->value) === 1;
     }
 
-    /** 
+    /**
      * @return array{
      *  name:string,
      *  contents:resource|string,
      *  filename?:string
-     * } 
+     * }
      */
     public function toMultipartPart(string $field): array
     {
@@ -72,8 +72,8 @@ final readonly class Media
         throw new InvalidArgumentException("Invalid media for {$field}.");
     }
 
-    /** 
-     * @return resource 
+    /**
+     * @return resource
      */
     private function openFile(string $path, string $field)
     {

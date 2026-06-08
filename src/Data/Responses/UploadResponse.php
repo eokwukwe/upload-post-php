@@ -8,8 +8,8 @@ use Softgeng\UploadPost\Support\Arr;
 
 final readonly class UploadResponse extends ApiResponse
 {
-    /** 
-     * @param array<int|string, mixed> $raw 
+    /**
+     * @param  array<int|string, mixed>  $raw
      */
     public function __construct(
         array $raw,
@@ -21,8 +21,8 @@ final readonly class UploadResponse extends ApiResponse
         parent::__construct($raw);
     }
 
-    /** 
-     * @param array<int|string, mixed> $raw 
+    /**
+     * @param  array<int|string, mixed>  $raw
      */
     public static function fromArray(array $raw): self
     {
