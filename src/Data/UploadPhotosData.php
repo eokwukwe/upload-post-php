@@ -10,6 +10,8 @@ use Softgeng\UploadPost\Support\MultipartPayload;
 
 final readonly class UploadPhotosData
 {
+    use Concerns;
+
     /**
      * @param  list<string|object>  $photos
      */
@@ -22,6 +24,32 @@ final readonly class UploadPhotosData
         if ($this->photos === []) {
             throw new InvalidArgumentException('At least one photo is required.');
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            photos: self::mediaListFrom($data['photos'] ?? $data['photo'] ?? []),
+            common: self::commonFrom($data),
+            options: self::optionsFrom($data),
+            idempotency_key: self::stringOrNull($data['idempotency_key'] ?? null),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return self::withoutBlankValues([
+            'photos' => $this->photos,
+            'common' => $this->common->toArray(),
+            'options' => $this->options->toArray(),
+            'idempotency_key' => $this->idempotency_key,
+        ]);
     }
 
     public function toMultipart(): MultipartPayload

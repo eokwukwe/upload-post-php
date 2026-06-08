@@ -12,6 +12,8 @@ use Softgeng\UploadPost\Support\MultipartPayload;
 
 final readonly class UploadDocumentData
 {
+    use Concerns;
+
     public function __construct(
         public string|object $document,
         public string $user,
@@ -32,6 +34,46 @@ final readonly class UploadDocumentData
         if (trim($this->title) === '') {
             throw new InvalidArgumentException('title is required.');
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            document: self::mediaInputFrom($data['document'] ?? null),
+            user: self::stringOrNull($data['user'] ?? null) ?? '',
+            title: self::stringOrNull($data['title'] ?? null) ?? '',
+            description: self::stringOrNull($data['description'] ?? null),
+            scheduled_date: self::dateFrom($data['scheduled_date'] ?? null),
+            timezone: self::stringOrNull($data['timezone'] ?? null),
+            add_to_queue: self::boolOrNull($data['add_to_queue'] ?? null),
+            max_posts_per_slot: self::intOrNull($data['max_posts_per_slot'] ?? null),
+            async_upload: self::boolOrNull($data['async_upload'] ?? null),
+            options: self::optionsFrom($data),
+            idempotency_key: self::stringOrNull($data['idempotency_key'] ?? null),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return self::withoutBlankValues([
+            'document' => $this->document,
+            'user' => $this->user,
+            'title' => $this->title,
+            'description' => $this->description,
+            'scheduled_date' => self::date($this->scheduled_date),
+            'timezone' => $this->timezone,
+            'add_to_queue' => $this->add_to_queue,
+            'max_posts_per_slot' => $this->max_posts_per_slot,
+            'async_upload' => $this->async_upload,
+            'options' => $this->options->toArray(),
+            'idempotency_key' => $this->idempotency_key,
+        ]);
     }
 
     public function toMultipart(): MultipartPayload

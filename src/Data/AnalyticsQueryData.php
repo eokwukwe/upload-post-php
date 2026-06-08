@@ -8,6 +8,8 @@ use Softgeng\UploadPost\Enums\Platform;
 
 final readonly class AnalyticsQueryData
 {
+    use Concerns;
+
     /**
      * @param  list<Platform|string>  $platforms
      */
@@ -16,6 +18,30 @@ final readonly class AnalyticsQueryData
         public ?string $page_id = null,
         public ?string $page_urn = null,
     ) {}
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            platforms: self::platformListFrom($data['platforms'] ?? []),
+            page_id: self::stringOrNull($data['page_id'] ?? null),
+            page_urn: self::stringOrNull($data['page_urn'] ?? null),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return self::withoutBlankValues([
+            'platforms' => self::platformsToValues($this->platforms),
+            'page_id' => $this->page_id,
+            'page_urn' => $this->page_urn,
+        ]);
+    }
 
     /**
      * @return array<string,string>

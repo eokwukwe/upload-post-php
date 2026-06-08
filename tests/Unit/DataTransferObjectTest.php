@@ -5,12 +5,17 @@ declare(strict_types=1);
 use Softgeng\UploadPost\Data\AnalyticsQueryData;
 use Softgeng\UploadPost\Data\CommonUploadData;
 use Softgeng\UploadPost\Data\GenerateJwtData;
+use Softgeng\UploadPost\Data\PlatformOptions;
 use Softgeng\UploadPost\Data\Responses\GenericResponse;
 use Softgeng\UploadPost\Data\Responses\JwtResponse;
 use Softgeng\UploadPost\Data\Responses\ListResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
 use Softgeng\UploadPost\Data\Responses\UploadResponse;
 use Softgeng\UploadPost\Data\Responses\UserResponse;
+use Softgeng\UploadPost\Data\UploadDocumentData;
+use Softgeng\UploadPost\Data\UploadPhotosData;
+use Softgeng\UploadPost\Data\UploadTextData;
+use Softgeng\UploadPost\Data\UploadVideoData;
 use Softgeng\UploadPost\Data\YoutubeSubtitleData;
 use Softgeng\UploadPost\Enums\Platform;
 use Softgeng\UploadPost\Support\Media;
@@ -32,6 +37,129 @@ test('analytics query data maps platform enums and optional query values', funct
 
 test('analytics query data drops empty optional values', function (): void {
     expect((new AnalyticsQueryData)->toQuery())->toBe([]);
+});
+
+test('request DTOs can be created from arrays', function (): void {
+    expect(AnalyticsQueryData::fromArray([
+        'platforms' => [Platform::Instagram, 'youtube'],
+        'page_id' => 123,
+    ])->toQuery())->toBe([
+        'platforms' => 'instagram,youtube',
+        'page_id' => '123',
+    ]);
+
+    expect(GenerateJwtData::fromArray([
+        'username' => 'profile',
+        'platforms' => ['x'],
+        'show_calendar' => 'true',
+    ])->toArray())->toBe([
+        'username' => 'profile',
+        'platforms' => ['x'],
+        'show_calendar' => true,
+    ]);
+
+    $video = UploadVideoData::fromArray([
+        'video' => 'https://example.com/video.mp4',
+        'user' => 'profile',
+        'platforms' => ['youtube'],
+        'title' => 'Video',
+        'async_upload' => 'true',
+        'youtube_tags' => ['php'],
+        'youtube_subtitles' => [
+            ['language' => 'en', 'url' => 'https://example.com/subtitles.vtt'],
+        ],
+        'idempotency_key' => 'idem-video',
+    ]);
+    $videoContents = array_column($video->toMultipart()->all(), 'contents', 'name');
+
+    expect($video->idempotency_key)->toBe('idem-video')
+        ->and($video->common->async_upload)->toBeTrue()
+        ->and($videoContents['tags[]'])->toBe('php')
+        ->and($videoContents['youtube_subtitle_language_0'])->toBe('en');
+
+    $text = UploadTextData::fromArray([
+        'common' => ['user' => 'profile', 'platforms' => ['x'], 'title' => 'Text'],
+        'link_url' => 'https://example.com',
+        'options' => ['x_poll_options' => ['yes', 'no'], 'x_poll_duration' => '60'],
+    ]);
+
+    expect($text->common->title)->toBe('Text')
+        ->and($text->options->x_poll_options)->toBe(['yes', 'no'])
+        ->and($text->options->x_poll_duration)->toBe('60');
+
+    expect(UploadPhotosData::fromArray([
+        'photos' => ['https://example.com/photo.jpg'],
+        'common' => new CommonUploadData(user: 'profile', platforms: ['instagram']),
+        'options' => new PlatformOptions(instagram_media_type: 'IMAGE'),
+    ])->options->instagram_media_type)->toBe('IMAGE');
+
+    expect(UploadDocumentData::fromArray([
+        'document' => 'https://example.com/document.pdf',
+        'user' => 'profile',
+        'title' => 'Document',
+        'add_to_queue' => 'false',
+        'max_posts_per_slot' => '2',
+    ])->max_posts_per_slot)->toBe(2);
+});
+
+test('request DTOs can be converted to arrays', function (): void {
+    $video = new UploadVideoData(
+        video: 'https://example.com/video.mp4',
+        common: new CommonUploadData(
+            user: 'profile',
+            platforms: [Platform::YouTube],
+            title: 'Video',
+            scheduled_date: new DateTimeImmutable('2026-01-01 12:00:00', new DateTimeZone('UTC')),
+            async_upload: false,
+        ),
+        options: new PlatformOptions(
+            youtube_tags: ['php'],
+            youtube_embeddable: false,
+            youtube_subtitles: [
+                new YoutubeSubtitleData(language: 'en', url: 'https://example.com/subtitles.vtt'),
+            ],
+        ),
+        idempotency_key: 'idem-video',
+    );
+
+    expect($video->toArray())->toBe([
+        'video' => 'https://example.com/video.mp4',
+        'common' => [
+            'user' => 'profile',
+            'platforms' => ['youtube'],
+            'title' => 'Video',
+            'scheduled_date' => '2026-01-01T12:00:00+00:00',
+            'async_upload' => false,
+        ],
+        'options' => [
+            'youtube_tags' => ['php'],
+            'youtube_embeddable' => false,
+            'youtube_subtitles' => [
+                ['language' => 'en', 'url' => 'https://example.com/subtitles.vtt'],
+            ],
+        ],
+        'idempotency_key' => 'idem-video',
+    ]);
+
+    expect(UploadTextData::fromArray([
+        'common' => ['user' => 'profile', 'platforms' => ['x']],
+        'options' => ['x_long_text_as_post' => true],
+    ])->toArray())->toBe([
+        'common' => ['user' => 'profile', 'platforms' => ['x']],
+        'options' => ['x_long_text_as_post' => true],
+    ]);
+
+    expect(UploadDocumentData::fromArray([
+        'document' => 'https://example.com/document.pdf',
+        'user' => 'profile',
+        'title' => 'Document',
+        'add_to_queue' => 'false',
+    ])->toArray())->toBe([
+        'document' => 'https://example.com/document.pdf',
+        'user' => 'profile',
+        'title' => 'Document',
+        'add_to_queue' => false,
+    ]);
 });
 
 test('generate jwt data maps platform enums and removes blank values', function (): void {

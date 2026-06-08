@@ -8,6 +8,8 @@ use Softgeng\UploadPost\Enums\Platform;
 
 final readonly class GenerateJwtData
 {
+    use Concerns;
+
     /**
      * @param  list<Platform|string>  $platforms
      */
@@ -23,6 +25,25 @@ final readonly class GenerateJwtData
         public ?string $connect_description = null,
         public ?string $language = null,
     ) {}
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            username: self::stringOrNull($data['username'] ?? null) ?? '',
+            redirect_url: self::stringOrNull($data['redirect_url'] ?? null),
+            logo_image: self::stringOrNull($data['logo_image'] ?? null),
+            redirect_button_text: self::stringOrNull($data['redirect_button_text'] ?? null),
+            platforms: self::platformListFrom($data['platforms'] ?? []),
+            show_calendar: self::boolOrNull($data['show_calendar'] ?? null),
+            readonly_calendar: self::boolOrNull($data['readonly_calendar'] ?? null),
+            connect_title: self::stringOrNull($data['connect_title'] ?? null),
+            connect_description: self::stringOrNull($data['connect_description'] ?? null),
+            language: self::stringOrNull($data['language'] ?? null),
+        );
+    }
 
     /**
      * @return array<string,mixed>

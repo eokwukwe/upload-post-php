@@ -69,6 +69,25 @@ You can also use the static convenience constructor:
 $client = UploadPostClient::make($_ENV['UPLOAD_POST_API_KEY']);
 ```
 
+Request DTOs can also be created from arrays, which is useful when building them from validated request data:
+
+```php
+$response = $client->uploadVideo(UploadVideoData::fromArray([
+    'video' => $request->file('video'),
+    'user' => $request->string('user')->toString(),
+    'platforms' => $request->input('platforms', []),
+    'title' => $request->string('title')->toString(),
+    'async_upload' => true,
+    'idempotency_key' => $request->header('X-Idempotency-Key'),
+]));
+```
+
+DTOs can be converted back to arrays when you need to store, inspect, or transform request data:
+
+```php
+$payload = UploadVideoData::fromArray($validated)->toArray();
+```
+
 ## Upload Examples
 
 Text posts:

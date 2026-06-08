@@ -44,7 +44,7 @@ final readonly class PlatformOptions
         public ?string $instagram_user_tags = null,
         public ?string $instagram_location_id = null,
         public ?bool $instagram_share_to_feed = null,
-        public Media|string|null $instagram_cover = null,
+        public string|object|null $instagram_cover = null,
         public ?string $instagram_audio_name = null,
         public ?string $instagram_thumb_offset = null,
 
@@ -115,6 +115,175 @@ final readonly class PlatformOptions
     public static function empty(): self
     {
         return new self;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            tiktok_disable_comment: self::boolOrNull($data['tiktok_disable_comment'] ?? null),
+            brand_content_toggle: self::boolOrNull($data['brand_content_toggle'] ?? null),
+            brand_organic_toggle: self::boolOrNull($data['brand_organic_toggle'] ?? null),
+            tiktok_privacy_level: self::stringOrNull($data['tiktok_privacy_level'] ?? null),
+            tiktok_disable_duet: self::boolOrNull($data['tiktok_disable_duet'] ?? null),
+            tiktok_disable_stitch: self::boolOrNull($data['tiktok_disable_stitch'] ?? null),
+            tiktok_cover_timestamp: self::intStringOrNull($data['tiktok_cover_timestamp'] ?? null),
+            tiktok_is_aigc: self::boolOrNull($data['tiktok_is_aigc'] ?? null),
+            tiktok_post_mode: self::stringOrNull($data['tiktok_post_mode'] ?? null),
+            tiktok_auto_add_music: self::boolOrNull($data['tiktok_auto_add_music'] ?? null),
+            tiktok_photo_cover_index: self::intOrNull($data['tiktok_photo_cover_index'] ?? null),
+            instagram_media_type: self::stringOrNull($data['instagram_media_type'] ?? null),
+            instagram_collaborators: self::stringOrNull($data['instagram_collaborators'] ?? null),
+            instagram_user_tags: self::stringOrNull($data['instagram_user_tags'] ?? null),
+            instagram_location_id: self::stringOrNull($data['instagram_location_id'] ?? null),
+            instagram_share_to_feed: self::boolOrNull($data['instagram_share_to_feed'] ?? null),
+            instagram_cover: self::mediaInputOrNull($data['instagram_cover'] ?? null),
+            instagram_audio_name: self::stringOrNull($data['instagram_audio_name'] ?? null),
+            instagram_thumb_offset: self::stringOrNull($data['instagram_thumb_offset'] ?? null),
+            youtube_tags: self::stringListFrom($data['youtube_tags'] ?? []),
+            youtube_category_id: self::stringOrNull($data['youtube_category_id'] ?? null),
+            youtube_privacy_status: self::stringOrNull($data['youtube_privacy_status'] ?? null),
+            youtube_embeddable: self::boolOrNull($data['youtube_embeddable'] ?? null),
+            youtube_license: self::stringOrNull($data['youtube_license'] ?? null),
+            youtube_public_stats_viewable: self::boolOrNull($data['youtube_public_stats_viewable'] ?? null),
+            youtube_thumbnail_url: self::stringOrNull($data['youtube_thumbnail_url'] ?? null),
+            youtube_self_declared_made_for_kids: self::boolOrNull($data['youtube_self_declared_made_for_kids'] ?? null),
+            youtube_contains_synthetic_media: self::boolOrNull($data['youtube_contains_synthetic_media'] ?? null),
+            youtube_default_language: self::stringOrNull($data['youtube_default_language'] ?? null),
+            youtube_default_audio_language: self::stringOrNull($data['youtube_default_audio_language'] ?? null),
+            youtube_allowed_countries: self::stringOrNull($data['youtube_allowed_countries'] ?? null),
+            youtube_blocked_countries: self::stringOrNull($data['youtube_blocked_countries'] ?? null),
+            youtube_has_paid_product_placement: self::boolOrNull($data['youtube_has_paid_product_placement'] ?? null),
+            youtube_recording_date: self::stringOrNull($data['youtube_recording_date'] ?? null),
+            youtube_subtitles: self::youtubeSubtitlesFrom($data['youtube_subtitles'] ?? []),
+            linkedin_visibility: self::stringOrNull($data['linkedin_visibility'] ?? null),
+            target_linkedin_page_id: self::stringOrNull($data['target_linkedin_page_id'] ?? null),
+            linkedin_link_url: self::stringOrNull($data['linkedin_link_url'] ?? null),
+            facebook_page_id: self::stringOrNull($data['facebook_page_id'] ?? null),
+            facebook_video_state: self::stringOrNull($data['facebook_video_state'] ?? null),
+            facebook_media_type: self::stringOrNull($data['facebook_media_type'] ?? null),
+            thumbnail_url: self::stringOrNull($data['thumbnail_url'] ?? null),
+            facebook_link_url: self::stringOrNull($data['facebook_link_url'] ?? null),
+            pinterest_board_id: self::stringOrNull($data['pinterest_board_id'] ?? null),
+            pinterest_alt_text: self::stringOrNull($data['pinterest_alt_text'] ?? null),
+            pinterest_link: self::stringOrNull($data['pinterest_link'] ?? null),
+            pinterest_cover_image_url: self::stringOrNull($data['pinterest_cover_image_url'] ?? null),
+            pinterest_cover_image_content_type: self::stringOrNull($data['pinterest_cover_image_content_type'] ?? null),
+            pinterest_cover_image_data: self::stringOrNull($data['pinterest_cover_image_data'] ?? null),
+            pinterest_cover_image_key_frame_time: self::intStringOrNull($data['pinterest_cover_image_key_frame_time'] ?? null),
+            x_reply_settings: self::stringOrNull($data['x_reply_settings'] ?? null),
+            x_nullcast: self::boolOrNull($data['x_nullcast'] ?? null),
+            x_quote_tweet_id: self::stringOrNull($data['x_quote_tweet_id'] ?? null),
+            x_geo_place_id: self::stringOrNull($data['x_geo_place_id'] ?? null),
+            x_for_super_followers_only: self::boolOrNull($data['x_for_super_followers_only'] ?? null),
+            x_community_id: self::stringOrNull($data['x_community_id'] ?? null),
+            x_share_with_followers: self::boolOrNull($data['x_share_with_followers'] ?? null),
+            x_direct_message_deep_link: self::stringOrNull($data['x_direct_message_deep_link'] ?? null),
+            x_long_text_as_post: self::boolOrNull($data['x_long_text_as_post'] ?? null),
+            x_tagged_user_ids: self::stringListFrom($data['x_tagged_user_ids'] ?? []),
+            x_place_id: self::stringOrNull($data['x_place_id'] ?? null),
+            x_thread_image_layout: self::stringOrNull($data['x_thread_image_layout'] ?? null),
+            x_post_url: self::stringOrNull($data['x_post_url'] ?? null),
+            x_card_uri: self::stringOrNull($data['x_card_uri'] ?? null),
+            x_poll_options: self::stringListFrom($data['x_poll_options'] ?? []),
+            x_poll_duration: self::intStringOrNull($data['x_poll_duration'] ?? null),
+            x_poll_reply_settings: self::stringOrNull($data['x_poll_reply_settings'] ?? null),
+            threads_long_text_as_post: self::boolOrNull($data['threads_long_text_as_post'] ?? null),
+            threads_thread_media_layout: self::stringOrNull($data['threads_thread_media_layout'] ?? null),
+            threads_topic_tag: self::stringOrNull($data['threads_topic_tag'] ?? null),
+            reddit_subreddit: self::stringOrNull($data['reddit_subreddit'] ?? null),
+            reddit_flair_id: self::stringOrNull($data['reddit_flair_id'] ?? null),
+            reddit_link_url: self::stringOrNull($data['reddit_link_url'] ?? null),
+            bluesky_link_url: self::stringOrNull($data['bluesky_link_url'] ?? null),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return self::withoutBlankValues([
+            'tiktok_disable_comment' => $this->tiktok_disable_comment,
+            'brand_content_toggle' => $this->brand_content_toggle,
+            'brand_organic_toggle' => $this->brand_organic_toggle,
+            'tiktok_privacy_level' => self::enumValue($this->tiktok_privacy_level),
+            'tiktok_disable_duet' => $this->tiktok_disable_duet,
+            'tiktok_disable_stitch' => $this->tiktok_disable_stitch,
+            'tiktok_cover_timestamp' => $this->tiktok_cover_timestamp,
+            'tiktok_is_aigc' => $this->tiktok_is_aigc,
+            'tiktok_post_mode' => self::enumValue($this->tiktok_post_mode),
+            'tiktok_auto_add_music' => $this->tiktok_auto_add_music,
+            'tiktok_photo_cover_index' => $this->tiktok_photo_cover_index,
+            'instagram_media_type' => self::enumValue($this->instagram_media_type),
+            'instagram_collaborators' => $this->instagram_collaborators,
+            'instagram_user_tags' => $this->instagram_user_tags,
+            'instagram_location_id' => $this->instagram_location_id,
+            'instagram_share_to_feed' => $this->instagram_share_to_feed,
+            'instagram_cover' => $this->instagram_cover,
+            'instagram_audio_name' => $this->instagram_audio_name,
+            'instagram_thumb_offset' => $this->instagram_thumb_offset,
+            'youtube_tags' => $this->youtube_tags,
+            'youtube_category_id' => $this->youtube_category_id,
+            'youtube_privacy_status' => self::enumValue($this->youtube_privacy_status),
+            'youtube_embeddable' => $this->youtube_embeddable,
+            'youtube_license' => $this->youtube_license,
+            'youtube_public_stats_viewable' => $this->youtube_public_stats_viewable,
+            'youtube_thumbnail_url' => $this->youtube_thumbnail_url,
+            'youtube_self_declared_made_for_kids' => $this->youtube_self_declared_made_for_kids,
+            'youtube_contains_synthetic_media' => $this->youtube_contains_synthetic_media,
+            'youtube_default_language' => $this->youtube_default_language,
+            'youtube_default_audio_language' => $this->youtube_default_audio_language,
+            'youtube_allowed_countries' => $this->youtube_allowed_countries,
+            'youtube_blocked_countries' => $this->youtube_blocked_countries,
+            'youtube_has_paid_product_placement' => $this->youtube_has_paid_product_placement,
+            'youtube_recording_date' => $this->youtube_recording_date,
+            'youtube_subtitles' => array_map(
+                static fn (YoutubeSubtitleData $subtitle): array => $subtitle->toArray(),
+                $this->youtube_subtitles
+            ),
+            'linkedin_visibility' => self::enumValue($this->linkedin_visibility),
+            'target_linkedin_page_id' => $this->target_linkedin_page_id,
+            'linkedin_link_url' => $this->linkedin_link_url,
+            'facebook_page_id' => $this->facebook_page_id,
+            'facebook_video_state' => self::enumValue($this->facebook_video_state),
+            'facebook_media_type' => self::enumValue($this->facebook_media_type),
+            'thumbnail_url' => $this->thumbnail_url,
+            'facebook_link_url' => $this->facebook_link_url,
+            'pinterest_board_id' => $this->pinterest_board_id,
+            'pinterest_alt_text' => $this->pinterest_alt_text,
+            'pinterest_link' => $this->pinterest_link,
+            'pinterest_cover_image_url' => $this->pinterest_cover_image_url,
+            'pinterest_cover_image_content_type' => $this->pinterest_cover_image_content_type,
+            'pinterest_cover_image_data' => $this->pinterest_cover_image_data,
+            'pinterest_cover_image_key_frame_time' => $this->pinterest_cover_image_key_frame_time,
+            'x_reply_settings' => self::enumValue($this->x_reply_settings),
+            'x_nullcast' => $this->x_nullcast,
+            'x_quote_tweet_id' => $this->x_quote_tweet_id,
+            'x_geo_place_id' => $this->x_geo_place_id,
+            'x_for_super_followers_only' => $this->x_for_super_followers_only,
+            'x_community_id' => $this->x_community_id,
+            'x_share_with_followers' => $this->x_share_with_followers,
+            'x_direct_message_deep_link' => $this->x_direct_message_deep_link,
+            'x_long_text_as_post' => $this->x_long_text_as_post,
+            'x_tagged_user_ids' => $this->x_tagged_user_ids,
+            'x_place_id' => $this->x_place_id,
+            'x_thread_image_layout' => $this->x_thread_image_layout,
+            'x_post_url' => $this->x_post_url,
+            'x_card_uri' => $this->x_card_uri,
+            'x_poll_options' => $this->x_poll_options,
+            'x_poll_duration' => $this->x_poll_duration,
+            'x_poll_reply_settings' => self::enumValue($this->x_poll_reply_settings),
+            'threads_long_text_as_post' => $this->threads_long_text_as_post,
+            'threads_thread_media_layout' => $this->threads_thread_media_layout,
+            'threads_topic_tag' => $this->threads_topic_tag,
+            'reddit_subreddit' => $this->reddit_subreddit,
+            'reddit_flair_id' => $this->reddit_flair_id,
+            'reddit_link_url' => $this->reddit_link_url,
+            'bluesky_link_url' => $this->bluesky_link_url,
+        ]);
     }
 
     /**
@@ -216,6 +385,23 @@ final readonly class PlatformOptions
     public function addForDocument(MultipartPayload $payload): MultipartPayload
     {
         return $this->addLinkedin($payload, false);
+    }
+
+    /**
+     * @return list<YoutubeSubtitleData>
+     */
+    private static function youtubeSubtitlesFrom(mixed $value): array
+    {
+        return array_values(array_filter(
+            array_map(
+                static fn (mixed $subtitle): ?YoutubeSubtitleData => match (true) {
+                    $subtitle instanceof YoutubeSubtitleData => $subtitle,
+                    is_array($subtitle) => YoutubeSubtitleData::fromArray($subtitle),
+                    default => null,
+                },
+                self::listFrom($value)
+            )
+        ));
     }
 
     private function addTiktok(MultipartPayload $p, bool $is_video): MultipartPayload
