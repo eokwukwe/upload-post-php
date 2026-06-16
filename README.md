@@ -1,7 +1,7 @@
 # upload-post-php SDK
 
 [![Tests](https://github.com/eokwukwe/upload-post-php/actions/workflows/tests.yml/badge.svg)](https://github.com/eokwukwe/upload-post-php/actions/workflows/tests.yml)
-[![Coverage](https://codecov.io/gh/eokwukwe/upload-post-php/branch/main/graph/badge.svg)](https://codecov.io/gh/eokwukwe/upload-post-php)
+[![Coverage](https://codecov.io/github/eokwukwe/upload-post-php/graph/badge.svg?token=A99S78ONJ7)](https://codecov.io/github/eokwukwe/upload-post-php)
 
 PHP SDK for the Upload-Post API, with support for media uploads, scheduling, analytics, and optional Laravel integration.
 

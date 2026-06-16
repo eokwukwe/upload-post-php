@@ -46,12 +46,11 @@ jobs:
       - name: Run coverage
         run: composer test:coverage -- --coverage-clover=coverage.xml
 
-      # - name: Upload coverage to Codecov
-      #   if: matrix.php == '8.5'
-      #   uses: codecov/codecov-action@v5
-      #   with:
-      #     files: ./coverage.xml
-      #     flags: php
-      #     name: php-${{ matrix.php }}
-      #     use_oidc: true
-      #     fail_ci_if_error: true
+      - name: Upload coverage to Codecov
+        if: matrix.php == '8.2'
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: ./coverage.xml
+          name: php-test-coverage
+          fail_ci_if_error: true
