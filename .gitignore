@@ -26,3 +26,4 @@ laradumps.yaml
 .vscode/mcp.json
 boost.json
 AGENTS.md
+coverage.xml

@@ -23,6 +23,7 @@ jobs:
           - '8.2'
           - '8.3'
           - '8.4'
+          - '8.5'
 
     steps:
       - name: Checkout
@@ -43,10 +44,10 @@ jobs:
         run: composer codecheck
 
       - name: Run coverage
-        run: composer test:coverage -- --coverage-clover=coverage.xml --min=90
+        run: composer test:coverage -- --coverage-clover=coverage.xml
 
       # - name: Upload coverage to Codecov
-      #   if: matrix.php == '8.4'
+      #   if: matrix.php == '8.5'
       #   uses: codecov/codecov-action@v5
       #   with:
       #     files: ./coverage.xml

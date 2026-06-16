@@ -50,7 +50,7 @@
   },
   "scripts": {
     "test": "@php vendor/bin/pest --colors=always",
-    "test:coverage": "@php vendor/bin/pest --coverage --colors=always",
+    "test:coverage": "@php vendor/bin/pest --coverage --colors=always --compact --min=90",
     "refactor": "rector process",
     "test:refactor": "rector process --dry-run",
     "lint": "pint",
@@ -59,8 +59,7 @@
     "codecheck": [
       "@test:refactor",
       "@test:lint",
-      "@test:analyse",
-      "@test"
+      "@test:analyse"
     ]
   },
   "config": {
