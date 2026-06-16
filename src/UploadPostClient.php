@@ -10,6 +10,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Softgeng\UploadPost\Data\AnalyticsQueryData;
 use Softgeng\UploadPost\Data\GenerateJwtData;
+use Softgeng\UploadPost\Data\NotificationConfigData;
 use Softgeng\UploadPost\Data\Responses\ActionResponse;
 use Softgeng\UploadPost\Data\Responses\AnalyticsResponse;
 use Softgeng\UploadPost\Data\Responses\CommentsResponse;
@@ -17,6 +18,7 @@ use Softgeng\UploadPost\Data\Responses\GenericResponse;
 use Softgeng\UploadPost\Data\Responses\HistoryResponse;
 use Softgeng\UploadPost\Data\Responses\JwtResponse;
 use Softgeng\UploadPost\Data\Responses\MediaResponse;
+use Softgeng\UploadPost\Data\Responses\NotificationConfigResponse;
 use Softgeng\UploadPost\Data\Responses\ResourceListResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
@@ -234,6 +236,23 @@ final readonly class UploadPostClient
     public function updateNotificationConfig(array $config): GenericResponse
     {
         return GenericResponse::fromArray($this->post('/uploadposts/notification-config', $config));
+    }
+
+    public function configureNotifications(NotificationConfigData $data): NotificationConfigResponse
+    {
+        return NotificationConfigResponse::fromArray(
+            $this->post('/uploadposts/users/notifications', $data->toArray())
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $webhook_events
+     */
+    public function configureWebhook(
+        string $webhook_url,
+        array $webhook_events = []
+    ): NotificationConfigResponse {
+        return $this->configureNotifications(NotificationConfigData::webhook($webhook_url, $webhook_events));
     }
 
     /**

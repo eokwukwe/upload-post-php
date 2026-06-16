@@ -6,10 +6,12 @@ use Illuminate\Http\Client\Factory as HttpFactory;
 use Softgeng\UploadPost\Data\AnalyticsQueryData;
 use Softgeng\UploadPost\Data\CommonUploadData;
 use Softgeng\UploadPost\Data\GenerateJwtData;
+use Softgeng\UploadPost\Data\NotificationConfigData;
 use Softgeng\UploadPost\Data\UploadDocumentData;
 use Softgeng\UploadPost\Data\UploadPhotosData;
 use Softgeng\UploadPost\Data\UploadVideoData;
 use Softgeng\UploadPost\Enums\Platform;
+use Softgeng\UploadPost\Enums\WebhookEvent;
 use Softgeng\UploadPost\Support\UploadPostConfig;
 use Softgeng\UploadPost\UploadPostClient;
 
@@ -22,6 +24,8 @@ function uploadPostClientWithFake(HttpFactory $http, array $payload = []): Uploa
             'status' => 'ok',
             'message' => 'done',
             'data' => [['id' => 1]],
+            'success' => true,
+            'notifications' => ['webhook_url' => 'https://example.com/webhook'],
             'username' => 'profile',
             'jwt' => 'jwt_123',
             'url' => 'https://connect.example.com',
@@ -97,13 +101,37 @@ it('calls scheduling and user endpoints', function (): void {
         ->and($client->getUserPreferences()->get('status'))->toBe('ok')
         ->and($client->updateUserPreferences(['timezone' => 'UTC'])->get('status'))->toBe('ok')
         ->and($client->getNotificationConfig()->get('status'))->toBe('ok')
-        ->and($client->updateNotificationConfig(['webhook_url' => 'https://example.com'])->get('status'))->toBe('ok');
+        ->and($client->updateNotificationConfig(['webhook_url' => 'https://example.com'])->get('status'))->toBe('ok')
+        ->and($client->configureNotifications(new NotificationConfigData(
+            webhook: true,
+            telegram: false,
+            webhook_url: 'https://example.com/webhook',
+            webhook_events: ['upload_completed' => true],
+        ))->notifications)->toBe(['webhook_url' => 'https://example.com/webhook'])
+        ->and($client->configureWebhook('https://example.com/webhook', [
+            WebhookEvent::SocialAccountConnected->value => false,
+        ])->success)->toBeTrue();
 
     $http->assertSent(
         fn ($request): bool => $request->method() === 'PATCH' && str_contains((string) $request->url(), '/uploadposts/schedule/job_123')
     );
     $http->assertSent(
         fn ($request): bool => $request->method() === 'POST' && str_ends_with((string) $request->url(), '/uploadposts/users/generate-jwt')
+    );
+    $http->assertSent(
+        fn ($request): bool => $request->method() === 'POST'
+            && str_ends_with((string) $request->url(), '/uploadposts/users/notifications')
+            && $request['channels']['webhook'] === true
+            && $request['webhook_url'] === 'https://example.com/webhook'
+            && $request['webhook_events']['upload_completed'] === true
+            && $request['webhook_events']['social_account_connected'] === true
+            && $request['webhook_events']['social_account_disconnected'] === true
+            && $request['webhook_events']['social_account_reauth_required'] === true
+    );
+    $http->assertSent(
+        fn ($request): bool => $request->method() === 'POST'
+            && str_ends_with((string) $request->url(), '/uploadposts/users/notifications')
+            && $request['webhook_events']['social_account_connected'] === false
     );
 });
 

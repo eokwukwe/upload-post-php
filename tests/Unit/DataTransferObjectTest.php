@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Softgeng\UploadPost\Data\AnalyticsQueryData;
 use Softgeng\UploadPost\Data\CommonUploadData;
 use Softgeng\UploadPost\Data\GenerateJwtData;
+use Softgeng\UploadPost\Data\NotificationConfigData;
 use Softgeng\UploadPost\Data\PlatformOptions;
 use Softgeng\UploadPost\Data\Responses\ActionResponse;
 use Softgeng\UploadPost\Data\Responses\CommentsResponse;
@@ -13,6 +14,7 @@ use Softgeng\UploadPost\Data\Responses\HistoryResponse;
 use Softgeng\UploadPost\Data\Responses\JwtResponse;
 use Softgeng\UploadPost\Data\Responses\ListResponse;
 use Softgeng\UploadPost\Data\Responses\MediaResponse;
+use Softgeng\UploadPost\Data\Responses\NotificationConfigResponse;
 use Softgeng\UploadPost\Data\Responses\ResourceListResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
@@ -26,6 +28,7 @@ use Softgeng\UploadPost\Data\UploadTextData;
 use Softgeng\UploadPost\Data\UploadVideoData;
 use Softgeng\UploadPost\Data\YoutubeSubtitleData;
 use Softgeng\UploadPost\Enums\Platform;
+use Softgeng\UploadPost\Enums\WebhookEvent;
 use Softgeng\UploadPost\Support\Media;
 use Softgeng\UploadPost\Support\MultipartPayload;
 
@@ -64,6 +67,28 @@ test('request DTOs can be created from arrays', function (): void {
         'username' => 'profile',
         'platforms' => ['x'],
         'show_calendar' => true,
+    ]);
+
+    expect(NotificationConfigData::fromArray([
+        'channels' => ['webhook' => 'true', 'telegram' => 'false'],
+        'webhook_url' => 'https://example.com/webhook',
+        'telegram_chat_id' => 123456789,
+        'webhook_events' => [
+            'upload_completed' => 'true',
+            'social_account_connected' => 'false',
+            '' => true,
+            'ignored' => 'maybe',
+        ],
+    ])->toArray())->toBe([
+        'channels' => ['webhook' => true, 'telegram' => false],
+        'webhook_url' => 'https://example.com/webhook',
+        'telegram_chat_id' => '123456789',
+        'webhook_events' => [
+            'upload_completed' => true,
+            'social_account_connected' => false,
+            'social_account_disconnected' => true,
+            'social_account_reauth_required' => true,
+        ],
     ]);
 
     $video = UploadVideoData::fromArray([
@@ -168,6 +193,48 @@ test('request DTOs can be converted to arrays', function (): void {
         'title' => 'Document',
         'add_to_queue' => false,
     ]);
+
+    expect(NotificationConfigData::webhook('https://example.com/webhook')->toArray())->toBe([
+        'channels' => ['webhook' => true, 'telegram' => false],
+        'webhook_url' => 'https://example.com/webhook',
+        'webhook_events' => [
+            'upload_completed' => true,
+            'social_account_connected' => true,
+            'social_account_disconnected' => true,
+            'social_account_reauth_required' => true,
+        ],
+    ])->and(NotificationConfigData::webhook('https://example.com/webhook', [
+        WebhookEvent::SocialAccountReauthRequired->value => false,
+        WebhookEvent::UploadCompleted,
+    ])->toArray())->toBe([
+        'channels' => ['webhook' => true, 'telegram' => false],
+        'webhook_url' => 'https://example.com/webhook',
+        'webhook_events' => [
+            'upload_completed' => true,
+            'social_account_connected' => true,
+            'social_account_disconnected' => true,
+            'social_account_reauth_required' => false,
+        ],
+    ]);
+
+    expect((new NotificationConfigData(
+        webhook: true,
+        webhook_url: 'https://example.com/webhook',
+        webhook_events: [
+            'upload_completed' => false,
+            'unknown_event' => true,
+            WebhookEvent::SocialAccountConnected,
+        ],
+    ))->toArray())->toBe([
+        'channels' => ['webhook' => true],
+        'webhook_url' => 'https://example.com/webhook',
+        'webhook_events' => [
+            'upload_completed' => false,
+            'social_account_connected' => true,
+            'social_account_disconnected' => true,
+            'social_account_reauth_required' => true,
+        ],
+    ]);
 });
 
 test('request DTO array factories cover defensive branches', function (): void {
@@ -180,6 +247,18 @@ test('request DTO array factories cover defensive branches', function (): void {
     ])->and(AnalyticsQueryData::fromArray(['platforms' => ''])->toArray())->toBe([]);
 
     expect(PlatformOptions::empty()->toArray())->toBe([]);
+
+    expect(NotificationConfigData::fromArray([
+        'webhook_events' => 'upload_completed',
+    ])->toArray())->toBe([])
+        ->and(NotificationConfigData::fromArray([
+            'webhook_events' => ['upload_completed'],
+        ])->toArray())->toBe([
+            'webhook_events' => ['upload_completed' => true],
+        ])
+        ->and(NotificationConfigData::fromArray([
+            'webhook_events' => [true],
+        ])->toArray())->toBe([]);
 
     $photos = UploadPhotosData::fromArray([
         'photo' => 'https://example.com/photo.jpg',
@@ -282,6 +361,10 @@ test('response DTOs expose typed fields and raw payloads', function (): void {
     $scheduledPost = ScheduledPostResponse::fromArray(['success' => true, 'job_id' => 'job', 'scheduled_date' => '2026-01-01T00:00:00Z', 'title' => 'Title', 'caption' => 'Caption']);
     $resources = ResourceListResponse::fromArray(['success' => true, 'boards' => [['id' => 'board']], 'pinterest_account_used' => 'pin'], 'boards');
     $users = UserProfilesResponse::fromArray(['success' => true, 'profiles' => [['username' => 'profile']], 'limit' => '5', 'plan' => 'pro']);
+    $notifications = NotificationConfigResponse::fromArray([
+        'success' => true,
+        'notifications' => ['webhook_url' => 'https://example.com/webhook'],
+    ]);
 
     expect($generic->get('nested.value'))->toBe('ok')
         ->and($generic->toArray())->toBe(['nested' => ['value' => 'ok']])
@@ -320,7 +403,9 @@ test('response DTOs expose typed fields and raw payloads', function (): void {
         ->and($resources->pinterest_account_used)->toBe('pin')
         ->and($users->profiles)->toBe([['username' => 'profile']])
         ->and($users->items)->toBe([['username' => 'profile']])
-        ->and($users->limit)->toBe(5);
+        ->and($users->limit)->toBe(5)
+        ->and($notifications->success)->toBeTrue()
+        ->and($notifications->notifications)->toBe(['webhook_url' => 'https://example.com/webhook']);
 });
 
 test('response DTOs convert empty values to null', function (): void {
