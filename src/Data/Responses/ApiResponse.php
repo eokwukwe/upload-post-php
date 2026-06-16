@@ -25,4 +25,39 @@ abstract readonly class ApiResponse
     {
         return $this->raw;
     }
+
+    protected static function stringOrNull(mixed $value): ?string
+    {
+        return $value === null || $value === '' ? null : (string) $value;
+    }
+
+    protected static function boolOrNull(mixed $value): ?bool
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+    }
+
+    protected static function intOrNull(mixed $value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return is_numeric($value) ? (int) $value : null;
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    protected static function arrayOrEmpty(mixed $value): array
+    {
+        return is_array($value) ? $value : [];
+    }
 }

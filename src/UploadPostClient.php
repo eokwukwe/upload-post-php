@@ -10,11 +10,19 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Softgeng\UploadPost\Data\AnalyticsQueryData;
 use Softgeng\UploadPost\Data\GenerateJwtData;
+use Softgeng\UploadPost\Data\Responses\ActionResponse;
+use Softgeng\UploadPost\Data\Responses\AnalyticsResponse;
+use Softgeng\UploadPost\Data\Responses\CommentsResponse;
 use Softgeng\UploadPost\Data\Responses\GenericResponse;
+use Softgeng\UploadPost\Data\Responses\HistoryResponse;
 use Softgeng\UploadPost\Data\Responses\JwtResponse;
-use Softgeng\UploadPost\Data\Responses\ListResponse;
+use Softgeng\UploadPost\Data\Responses\MediaResponse;
+use Softgeng\UploadPost\Data\Responses\ResourceListResponse;
+use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
+use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
 use Softgeng\UploadPost\Data\Responses\UploadResponse;
+use Softgeng\UploadPost\Data\Responses\UserProfilesResponse;
 use Softgeng\UploadPost\Data\Responses\UserResponse;
 use Softgeng\UploadPost\Data\UploadDocumentData;
 use Softgeng\UploadPost\Data\UploadPhotosData;
@@ -95,16 +103,16 @@ final readonly class UploadPostClient
         return StatusResponse::fromArray($this->get('/uploadposts/status', ['job_id' => $job_id]));
     }
 
-    public function getHistory(int $page = 1, int $limit = 20): ListResponse
+    public function getHistory(int $page = 1, int $limit = 20): HistoryResponse
     {
-        return ListResponse::fromArray(
+        return HistoryResponse::fromArray(
             $this->get('/uploadposts/history', ['page' => $page, 'limit' => $limit])
         );
     }
 
-    public function getAnalytics(string $profileUsername, ?AnalyticsQueryData $query = null): GenericResponse
+    public function getAnalytics(string $profileUsername, ?AnalyticsQueryData $query = null): AnalyticsResponse
     {
-        return GenericResponse::fromArray(
+        return AnalyticsResponse::fromArray(
             $this->get('/analytics/'.rawurlencode($profileUsername), $query?->toQuery() ?? [])
         );
     }
@@ -147,29 +155,29 @@ final readonly class UploadPostClient
     /**
      * @param  array<string,string>  $query
      */
-    public function getMedia(string $platform, string $user, array $query = []): ListResponse
+    public function getMedia(string $platform, string $user, array $query = []): MediaResponse
     {
-        return ListResponse::fromArray(
+        return MediaResponse::fromArray(
             $this->get('/uploadposts/media', ['platform' => $platform, 'user' => $user, ...$query])
         );
     }
 
-    public function listScheduled(): ListResponse
+    public function listScheduled(): ScheduledPostsResponse
     {
-        return ListResponse::fromArray($this->get('/uploadposts/schedule'));
+        return ScheduledPostsResponse::fromArray($this->get('/uploadposts/schedule'));
     }
 
-    public function cancelScheduled(string $job_id): GenericResponse
+    public function cancelScheduled(string $job_id): ActionResponse
     {
-        return GenericResponse::fromArray($this->delete('/uploadposts/schedule/'.rawurlencode($job_id)));
+        return ActionResponse::fromArray($this->delete('/uploadposts/schedule/'.rawurlencode($job_id)));
     }
 
     public function editScheduled(
         string $job_id,
         string $scheduled_date,
         ?string $timezone = null
-    ): GenericResponse {
-        return GenericResponse::fromArray(
+    ): ScheduledPostResponse {
+        return ScheduledPostResponse::fromArray(
             $this->patch(
                 '/uploadposts/schedule/'.rawurlencode($job_id),
                 $this->clean(['scheduled_date' => $scheduled_date, 'timezone' => $timezone])
@@ -177,9 +185,9 @@ final readonly class UploadPostClient
         );
     }
 
-    public function listUsers(): ListResponse
+    public function listUsers(): UserProfilesResponse
     {
-        return ListResponse::fromArray($this->get('/uploadposts/users'));
+        return UserProfilesResponse::fromArray($this->get('/uploadposts/users'));
     }
 
     public function createUser(string $username): UserResponse
@@ -187,9 +195,9 @@ final readonly class UploadPostClient
         return UserResponse::fromArray($this->post('/uploadposts/users', ['username' => $username]));
     }
 
-    public function deleteUser(string $username): GenericResponse
+    public function deleteUser(string $username): ActionResponse
     {
-        return GenericResponse::fromArray($this->delete('/uploadposts/users', ['username' => $username]));
+        return ActionResponse::fromArray($this->delete('/uploadposts/users', ['username' => $username]));
     }
 
     public function generateJwt(GenerateJwtData $data): JwtResponse
@@ -197,9 +205,9 @@ final readonly class UploadPostClient
         return JwtResponse::fromArray($this->post('/uploadposts/users/generate-jwt', $data->toArray()));
     }
 
-    public function validateJwt(string $jwt): GenericResponse
+    public function validateJwt(string $jwt): ActionResponse
     {
-        return GenericResponse::fromArray($this->post('/uploadposts/users/validate-jwt', ['jwt' => $jwt]));
+        return ActionResponse::fromArray($this->post('/uploadposts/users/validate-jwt', ['jwt' => $jwt]));
     }
 
     public function getUserPreferences(): GenericResponse
@@ -231,16 +239,16 @@ final readonly class UploadPostClient
     /**
      * @param  array<string,string>  $query
      */
-    public function getPostComments(string $user, array $query = []): ListResponse
+    public function getPostComments(string $user, array $query = []): CommentsResponse
     {
-        return ListResponse::fromArray(
+        return CommentsResponse::fromArray(
             $this->get('/uploadposts/comments', ['platform' => 'instagram', 'user' => $user, ...$query])
         );
     }
 
-    public function replyToComment(string $user, string $commentId, string $message): GenericResponse
+    public function replyToComment(string $user, string $commentId, string $message): ActionResponse
     {
-        return GenericResponse::fromArray(
+        return ActionResponse::fromArray(
             $this->post(
                 '/uploadposts/comments/reply',
                 [
@@ -253,9 +261,9 @@ final readonly class UploadPostClient
         );
     }
 
-    public function publicReplyToComment(string $user, string $commentId, string $message): GenericResponse
+    public function publicReplyToComment(string $user, string $commentId, string $message): ActionResponse
     {
-        return GenericResponse::fromArray(
+        return ActionResponse::fromArray(
             $this->post(
                 '/uploadposts/comments/public-reply',
                 [
@@ -268,37 +276,41 @@ final readonly class UploadPostClient
         );
     }
 
-    public function getFacebookPages(?string $profile = null): ListResponse
+    public function getFacebookPages(?string $profile = null): ResourceListResponse
     {
-        return ListResponse::fromArray(
-            $this->get('/uploadposts/facebook/pages', $this->clean(['profile' => $profile]))
+        return ResourceListResponse::fromArray(
+            $this->get('/uploadposts/facebook/pages', $this->clean(['profile' => $profile])),
+            'pages',
         );
     }
 
-    public function getLinkedinPages(?string $profile = null): ListResponse
+    public function getLinkedinPages(?string $profile = null): ResourceListResponse
     {
-        return ListResponse::fromArray(
-            $this->get('/uploadposts/linkedin/pages', $this->clean(['profile' => $profile]))
+        return ResourceListResponse::fromArray(
+            $this->get('/uploadposts/linkedin/pages', $this->clean(['profile' => $profile])),
+            'pages',
         );
     }
 
-    public function getPinterestBoards(?string $profile = null): ListResponse
+    public function getPinterestBoards(?string $profile = null): ResourceListResponse
     {
-        return ListResponse::fromArray(
-            $this->get('/uploadposts/pinterest/boards', $this->clean(['profile' => $profile]))
+        return ResourceListResponse::fromArray(
+            $this->get('/uploadposts/pinterest/boards', $this->clean(['profile' => $profile])),
+            'boards',
         );
     }
 
-    public function getGoogleBusinessLocations(?string $profile = null): ListResponse
+    public function getGoogleBusinessLocations(?string $profile = null): ResourceListResponse
     {
-        return ListResponse::fromArray(
-            $this->get('/uploadposts/google-business/locations', $this->clean(['profile' => $profile]))
+        return ResourceListResponse::fromArray(
+            $this->get('/uploadposts/google-business/locations', $this->clean(['profile' => $profile])),
+            'locations',
         );
     }
 
-    public function selectGoogleBusinessLocation(string $locationId, ?string $profile = null): GenericResponse
+    public function selectGoogleBusinessLocation(string $locationId, ?string $profile = null): ActionResponse
     {
-        return GenericResponse::fromArray(
+        return ActionResponse::fromArray(
             $this->post(
                 '/uploadposts/google-business/locations/select',
                 $this->clean(['location_id' => $locationId, 'profile' => $profile])

@@ -169,6 +169,51 @@ The client also supports:
 - `getPostComments()`, `replyToComment()`, and `publicReplyToComment()`
 - Page/location helpers for Facebook, LinkedIn, Pinterest, and Google Business
 
+## Response Objects
+
+Client methods return typed response DTOs instead of plain arrays. The DTO properties use the same snake_case field names returned by the Upload-Post API, and the original payload is still available when you need it:
+
+```php
+$response = $client->uploadVideo($data);
+
+$request_id = $response->request_id;
+$job_id = $response->job_id;
+$raw = $response->toArray();
+$status = $response->get('status');
+```
+
+List-style responses expose API-specific names such as `history`, `media`, `comments`, `profiles`, or `scheduled_posts`. They also keep an `items` alias for compatibility with older list-style usage:
+
+```php
+$history = $client->getHistory();
+
+foreach ($history->history as $post) {
+    // ...
+}
+
+$sameItems = $history->items;
+```
+
+Current response types:
+
+| Method | Response type | Common fields |
+| --- | --- | --- |
+| `uploadVideo()`, `uploadPhotos()`, `uploadText()`, `uploadDocument()` | `UploadResponse` | `success`, `request_id`, `job_id`, `status`, `message`, `results` |
+| `getStatus()`, `getJobStatus()` | `StatusResponse` | `request_id`, `job_id`, `status`, `completed`, `total`, `results`, `last_update` |
+| `getHistory()` | `HistoryResponse` | `history`, `total`, `page`, `limit` |
+| `getAnalytics()` | `AnalyticsResponse` | `success`, `data` |
+| `getMedia()` | `MediaResponse` | `success`, `media` |
+| `listScheduled()` | `ScheduledPostsResponse` | `scheduled_posts` |
+| `editScheduled()` | `ScheduledPostResponse` | `success`, `job_id`, `scheduled_date`, `title`, `caption` |
+| `cancelScheduled()`, `deleteUser()`, `validateJwt()`, `replyToComment()`, `publicReplyToComment()`, `selectGoogleBusinessLocation()` | `ActionResponse` | `success`, `message`, `recipient_id`, `message_id` |
+| `listUsers()` | `UserProfilesResponse` | `success`, `profiles`, `limit`, `plan` |
+| `createUser()` | `UserResponse` | `success`, `username`, `profile` |
+| `generateJwt()` | `JwtResponse` | `success`, `jwt`, `url`, `access_url`, `duration` |
+| `getPostComments()` | `CommentsResponse` | `success`, `comments`, `pagination` |
+| `getFacebookPages()`, `getLinkedinPages()`, `getPinterestBoards()`, `getGoogleBusinessLocations()` | `ResourceListResponse` | `success`, `items`, `pinterest_account_used` |
+
+Some helper methods still return `GenericResponse` when the public API schema does not define a dedicated response shape for that endpoint. `GenericResponse` still supports `get()` and `toArray()`.
+
 ## Laravel Usage
 
 Publish config:

@@ -6,11 +6,19 @@ use Softgeng\UploadPost\Data\AnalyticsQueryData;
 use Softgeng\UploadPost\Data\CommonUploadData;
 use Softgeng\UploadPost\Data\GenerateJwtData;
 use Softgeng\UploadPost\Data\PlatformOptions;
+use Softgeng\UploadPost\Data\Responses\ActionResponse;
+use Softgeng\UploadPost\Data\Responses\CommentsResponse;
 use Softgeng\UploadPost\Data\Responses\GenericResponse;
+use Softgeng\UploadPost\Data\Responses\HistoryResponse;
 use Softgeng\UploadPost\Data\Responses\JwtResponse;
 use Softgeng\UploadPost\Data\Responses\ListResponse;
+use Softgeng\UploadPost\Data\Responses\MediaResponse;
+use Softgeng\UploadPost\Data\Responses\ResourceListResponse;
+use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
+use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
 use Softgeng\UploadPost\Data\Responses\UploadResponse;
+use Softgeng\UploadPost\Data\Responses\UserProfilesResponse;
 use Softgeng\UploadPost\Data\Responses\UserResponse;
 use Softgeng\UploadPost\Data\UploadDocumentData;
 use Softgeng\UploadPost\Data\UploadPhotosData;
@@ -254,28 +262,65 @@ test('generate jwt data maps platform enums and removes blank values', function 
 test('response DTOs expose typed fields and raw payloads', function (): void {
     $generic = GenericResponse::fromArray(['nested' => ['value' => 'ok']]);
     $jwt = JwtResponse::fromArray(['token' => 'jwt-token', 'connect_url' => 'https://connect.example.com']);
+    $jwtFromApi = JwtResponse::fromArray(['success' => true, 'access_url' => 'https://connect.example.com/new', 'duration' => '3600']);
     $listFromData = ListResponse::fromArray(['data' => [['id' => 1]]]);
     $listFromItems = ListResponse::fromArray(['items' => [['id' => 2]]]);
     $listFromRawList = ListResponse::fromArray([['id' => 3]]);
-    $status = StatusResponse::fromArray(['status' => 'done', 'request_id' => 123, 'job_id' => 'job']);
-    $upload = UploadResponse::fromArray(['request_id' => 123, 'job_id' => 456, 'status' => 'queued', 'message' => 'ok']);
-    $user = UserResponse::fromArray(['user' => 'profile']);
+    $status = StatusResponse::fromArray([
+        'status' => 'done',
+        'request_id' => 123,
+        'job_id' => 'job',
+        'completed' => '1',
+        'total' => 2,
+        'results' => [['platform' => 'x']],
+        'last_update' => '2026-01-01T00:00:00Z',
+    ]);
+    $upload = UploadResponse::fromArray(['success' => true, 'request_id' => 123, 'job_id' => 456, 'status' => 'queued', 'message' => 'ok', 'results' => ['linkedin' => ['id' => 1]]]);
+    $user = UserResponse::fromArray(['success' => true, 'profile' => ['username' => 'profile']]);
+    $history = HistoryResponse::fromArray(['history' => [['id' => 1]], 'total' => '1', 'page' => '2', 'limit' => '50']);
+    $scheduled = ScheduledPostsResponse::fromArray(['scheduled_posts' => [['job_id' => 'job']]]);
+    $scheduledPost = ScheduledPostResponse::fromArray(['success' => true, 'job_id' => 'job', 'scheduled_date' => '2026-01-01T00:00:00Z', 'title' => 'Title', 'caption' => 'Caption']);
+    $resources = ResourceListResponse::fromArray(['success' => true, 'boards' => [['id' => 'board']], 'pinterest_account_used' => 'pin'], 'boards');
+    $users = UserProfilesResponse::fromArray(['success' => true, 'profiles' => [['username' => 'profile']], 'limit' => '5', 'plan' => 'pro']);
 
     expect($generic->get('nested.value'))->toBe('ok')
         ->and($generic->toArray())->toBe(['nested' => ['value' => 'ok']])
         ->and($jwt->jwt)->toBe('jwt-token')
         ->and($jwt->url)->toBe('https://connect.example.com')
+        ->and($jwtFromApi->success)->toBeTrue()
+        ->and($jwtFromApi->url)->toBe('https://connect.example.com/new')
+        ->and($jwtFromApi->duration)->toBe(3600)
         ->and($listFromData->items)->toBe([['id' => 1]])
         ->and($listFromItems->items)->toBe([['id' => 2]])
         ->and($listFromRawList->items)->toBe([['id' => 3]])
         ->and($status->status)->toBe('done')
         ->and($status->request_id)->toBe('123')
         ->and($status->job_id)->toBe('job')
+        ->and($status->completed)->toBe(1)
+        ->and($status->total)->toBe(2)
+        ->and($status->results)->toBe([['platform' => 'x']])
+        ->and($status->last_update)->toBe('2026-01-01T00:00:00Z')
         ->and($upload->request_id)->toBe('123')
         ->and($upload->job_id)->toBe('456')
         ->and($upload->status)->toBe('queued')
         ->and($upload->message)->toBe('ok')
-        ->and($user->username)->toBe('profile');
+        ->and($upload->success)->toBeTrue()
+        ->and($upload->results)->toBe(['linkedin' => ['id' => 1]])
+        ->and($user->username)->toBe('profile')
+        ->and($user->success)->toBeTrue()
+        ->and($user->profile)->toBe(['username' => 'profile'])
+        ->and($history->history)->toBe([['id' => 1]])
+        ->and($history->items)->toBe([['id' => 1]])
+        ->and($history->total)->toBe(1)
+        ->and($scheduled->scheduled_posts)->toBe([['job_id' => 'job']])
+        ->and($scheduled->items)->toBe([['job_id' => 'job']])
+        ->and($scheduledPost->job_id)->toBe('job')
+        ->and($scheduledPost->caption)->toBe('Caption')
+        ->and($resources->items)->toBe([['id' => 'board']])
+        ->and($resources->pinterest_account_used)->toBe('pin')
+        ->and($users->profiles)->toBe([['username' => 'profile']])
+        ->and($users->items)->toBe([['username' => 'profile']])
+        ->and($users->limit)->toBe(5);
 });
 
 test('response DTOs convert empty values to null', function (): void {
@@ -284,6 +329,23 @@ test('response DTOs convert empty values to null', function (): void {
         ->and(StatusResponse::fromArray(['status' => '', 'request_id' => '', 'job_id' => ''])->status)->toBeNull()
         ->and(UploadResponse::fromArray(['request_id' => '', 'job_id' => '', 'status' => '', 'message' => ''])->request_id)->toBeNull()
         ->and(UserResponse::fromArray(['username' => ''])->username)->toBeNull();
+});
+
+test('response DTOs cover fallback accessors and scalar booleans', function (): void {
+    $reply = ActionResponse::fromArray([
+        'success' => 'true',
+        'recipient_id' => 123,
+        'message_id' => 'mid',
+    ]);
+
+    expect($reply->success)->toBeTrue()
+        ->and($reply->recipient_id)->toBe('123')
+        ->and($reply->message_id)->toBe('mid')
+        ->and(CommentsResponse::fromArray(['comments' => []])->missing)->toBeNull()
+        ->and(HistoryResponse::fromArray(['history' => []])->missing)->toBeNull()
+        ->and(MediaResponse::fromArray(['media' => []])->missing)->toBeNull()
+        ->and(ScheduledPostsResponse::fromArray(['scheduled_posts' => []])->missing)->toBeNull()
+        ->and(UserProfilesResponse::fromArray(['profiles' => []])->missing)->toBeNull();
 });
 
 test('youtube subtitle data adds url subtitle fields', function (): void {

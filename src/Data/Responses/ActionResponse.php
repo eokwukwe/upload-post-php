@@ -6,33 +6,32 @@ namespace Softgeng\UploadPost\Data\Responses;
 
 use Softgeng\UploadPost\Support\Arr;
 
-final readonly class UserResponse extends ApiResponse
+final readonly class ActionResponse extends ApiResponse
 {
     /**
-     * @param  array<string,mixed>  $raw
-     * @param  array<int|string, mixed>  $profile
+     * @param  array<string, mixed>  $raw
      */
     public function __construct(
         array $raw,
-        public ?string $username = null,
         public ?bool $success = null,
-        public array $profile = [],
+        public ?string $message = null,
+        public ?string $recipient_id = null,
+        public ?string $message_id = null,
     ) {
         parent::__construct($raw);
     }
 
     /**
-     * @param  array<string,mixed>  $raw
+     * @param  array<string, mixed>  $raw
      */
     public static function fromArray(array $raw): self
     {
-        $profile = self::arrayOrEmpty(Arr::get($raw, 'profile'));
-
         return new self(
             $raw,
-            self::stringOrNull(Arr::get($raw, 'username') ?? Arr::get($raw, 'user') ?? Arr::get($profile, 'username')),
             self::boolOrNull(Arr::get($raw, 'success')),
-            $profile,
+            self::stringOrNull(Arr::get($raw, 'message')),
+            self::stringOrNull(Arr::get($raw, 'recipient_id')),
+            self::stringOrNull(Arr::get($raw, 'message_id')),
         );
     }
 }

@@ -10,6 +10,7 @@ final readonly class UploadResponse extends ApiResponse
 {
     /**
      * @param  array<int|string, mixed>  $raw
+     * @param  array<int|string, mixed>  $results
      */
     public function __construct(
         array $raw,
@@ -17,6 +18,8 @@ final readonly class UploadResponse extends ApiResponse
         public ?string $job_id = null,
         public ?string $status = null,
         public ?string $message = null,
+        public ?bool $success = null,
+        public array $results = [],
     ) {
         parent::__construct($raw);
     }
@@ -32,11 +35,8 @@ final readonly class UploadResponse extends ApiResponse
             job_id: self::stringOrNull(Arr::get($raw, 'job_id')),
             status: self::stringOrNull(Arr::get($raw, 'status')),
             message: self::stringOrNull(Arr::get($raw, 'message')),
+            success: self::boolOrNull(Arr::get($raw, 'success')),
+            results: self::arrayOrEmpty(Arr::get($raw, 'results')),
         );
-    }
-
-    private static function stringOrNull(mixed $value): ?string
-    {
-        return $value === null || $value === '' ? null : (string) $value;
     }
 }
