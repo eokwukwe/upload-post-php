@@ -17,7 +17,7 @@ final readonly class JwtResponse extends ApiResponse
         public ?string $url = null,
         public ?bool $success = null,
         public ?string $access_url = null,
-        public ?int $duration = null,
+        public ?string $duration = null,
     ) {
         parent::__construct($raw);
     }
@@ -35,7 +35,7 @@ final readonly class JwtResponse extends ApiResponse
             self::stringOrNull(Arr::get($raw, 'url') ?? Arr::get($raw, 'connect_url') ?? $accessUrl),
             self::boolOrNull(Arr::get($raw, 'success')),
             $accessUrl,
-            self::intOrNull(Arr::get($raw, 'duration')),
+            self::stringOrNull(Arr::get($raw, 'duration')),
         );
     }
 }

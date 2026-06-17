@@ -341,7 +341,7 @@ test('generate jwt data maps platform enums and removes blank values', function 
 test('response DTOs expose typed fields and raw payloads', function (): void {
     $generic = GenericResponse::fromArray(['nested' => ['value' => 'ok']]);
     $jwt = JwtResponse::fromArray(['token' => 'jwt-token', 'connect_url' => 'https://connect.example.com']);
-    $jwtFromApi = JwtResponse::fromArray(['success' => true, 'access_url' => 'https://connect.example.com/new', 'duration' => '3600']);
+    $jwtFromApi = JwtResponse::fromArray(['success' => true, 'access_url' => 'https://connect.example.com/new', 'duration' => '36h']);
     $listFromData = ListResponse::fromArray(['data' => [['id' => 1]]]);
     $listFromItems = ListResponse::fromArray(['items' => [['id' => 2]]]);
     $listFromRawList = ListResponse::fromArray([['id' => 3]]);
@@ -372,7 +372,7 @@ test('response DTOs expose typed fields and raw payloads', function (): void {
         ->and($jwt->url)->toBe('https://connect.example.com')
         ->and($jwtFromApi->success)->toBeTrue()
         ->and($jwtFromApi->url)->toBe('https://connect.example.com/new')
-        ->and($jwtFromApi->duration)->toBe(3600)
+        ->and($jwtFromApi->duration)->toBe('36h')
         ->and($listFromData->items)->toBe([['id' => 1]])
         ->and($listFromItems->items)->toBe([['id' => 2]])
         ->and($listFromRawList->items)->toBe([['id' => 3]])
