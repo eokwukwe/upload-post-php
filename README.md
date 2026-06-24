@@ -109,7 +109,7 @@ $response = $client->uploadText(new UploadTextData(
     link_url: 'https://example.com',
     options: new PlatformOptions(
         x_long_text_as_post: true,
-        linkedin_visibility: 'PUBLIC',
+        visibility: 'PUBLIC',
     ),
 ));
 ```
@@ -146,7 +146,7 @@ $response = $client->uploadDocument(new UploadDocumentData(
     title: 'Quarterly update',
     description: 'Uploaded from PHP',
     options: new PlatformOptions(
-        linkedin_visibility: 'PUBLIC',
+        visibility: 'PUBLIC',
     ),
 ));
 ```

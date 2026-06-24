@@ -97,7 +97,7 @@ test('request DTOs can be created from arrays', function (): void {
         'platforms' => ['youtube'],
         'title' => 'Video',
         'async_upload' => 'true',
-        'youtube_tags' => ['php'],
+        'tags' => ['php'],
         'youtube_subtitles' => [
             ['language' => 'en', 'url' => 'https://example.com/subtitles.vtt'],
         ],
@@ -113,18 +113,18 @@ test('request DTOs can be created from arrays', function (): void {
     $text = UploadTextData::fromArray([
         'common' => ['user' => 'profile', 'platforms' => ['x'], 'title' => 'Text'],
         'link_url' => 'https://example.com',
-        'options' => ['x_poll_options' => ['yes', 'no'], 'x_poll_duration' => '60'],
+        'options' => ['poll_options' => ['yes', 'no'], 'poll_duration' => '60'],
     ]);
 
     expect($text->common->title)->toBe('Text')
-        ->and($text->options->x_poll_options)->toBe(['yes', 'no'])
-        ->and($text->options->x_poll_duration)->toBe('60');
+        ->and($text->options->poll_options)->toBe(['yes', 'no'])
+        ->and($text->options->poll_duration)->toBe('60');
 
     expect(UploadPhotosData::fromArray([
         'photos' => ['https://example.com/photo.jpg'],
         'common' => new CommonUploadData(user: 'profile', platforms: ['instagram']),
-        'options' => new PlatformOptions(instagram_media_type: 'IMAGE'),
-    ])->options->instagram_media_type)->toBe('IMAGE');
+        'options' => new PlatformOptions(media_type: 'IMAGE'),
+    ])->options->media_type)->toBe('IMAGE');
 
     expect(UploadDocumentData::fromArray([
         'document' => 'https://example.com/document.pdf',
@@ -146,8 +146,8 @@ test('request DTOs can be converted to arrays', function (): void {
             async_upload: false,
         ),
         options: new PlatformOptions(
-            youtube_tags: ['php'],
-            youtube_embeddable: false,
+            tags: ['php'],
+            embeddable: false,
             youtube_subtitles: [
                 new YoutubeSubtitleData(language: 'en', url: 'https://example.com/subtitles.vtt'),
             ],
@@ -165,8 +165,8 @@ test('request DTOs can be converted to arrays', function (): void {
             'async_upload' => false,
         ],
         'options' => [
-            'youtube_tags' => ['php'],
-            'youtube_embeddable' => false,
+            'tags' => ['php'],
+            'embeddable' => false,
             'youtube_subtitles' => [
                 ['language' => 'en', 'url' => 'https://example.com/subtitles.vtt'],
             ],

@@ -42,6 +42,7 @@ final readonly class CommonUploadData
         public ?string $youtube_title = null,
         public ?string $pinterest_title = null,
         public ?string $threads_title = null,
+        public ?string $reddit_title = null,
         public ?string $linkedin_description = null,
         public ?string $youtube_description = null,
         public ?string $facebook_description = null,
@@ -92,6 +93,7 @@ final readonly class CommonUploadData
             youtube_title: self::stringOrNull($data['youtube_title'] ?? null),
             pinterest_title: self::stringOrNull($data['pinterest_title'] ?? null),
             threads_title: self::stringOrNull($data['threads_title'] ?? null),
+            reddit_title: self::stringOrNull($data['reddit_title'] ?? null),
             linkedin_description: self::stringOrNull($data['linkedin_description'] ?? null),
             youtube_description: self::stringOrNull($data['youtube_description'] ?? null),
             facebook_description: self::stringOrNull($data['facebook_description'] ?? null),
@@ -135,6 +137,7 @@ final readonly class CommonUploadData
             'youtube_title' => $this->youtube_title,
             'pinterest_title' => $this->pinterest_title,
             'threads_title' => $this->threads_title,
+            'reddit_title' => $this->reddit_title,
             'linkedin_description' => $this->linkedin_description,
             'youtube_description' => $this->youtube_description,
             'facebook_description' => $this->facebook_description,
@@ -174,6 +177,7 @@ final readonly class CommonUploadData
             ->field('youtube_title', $this->youtube_title)
             ->field('pinterest_title', $this->pinterest_title)
             ->field('threads_title', $this->threads_title)
+            ->field('reddit_title', $this->reddit_title)
             ->field('linkedin_description', $this->linkedin_description)
             ->field('youtube_description', $this->youtube_description)
             ->field('facebook_description', $this->facebook_description)
