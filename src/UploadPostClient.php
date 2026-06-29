@@ -192,6 +192,11 @@ final readonly class UploadPostClient
         return UserProfilesResponse::fromArray($this->get('/uploadposts/users'));
     }
 
+    public function getUser(string $username): UserResponse
+    {
+        return UserResponse::fromArray($this->get('/uploadposts/users/'.rawurlencode($username)));
+    }
+
     public function createUser(string $username): UserResponse
     {
         return UserResponse::fromArray($this->post('/uploadposts/users', ['username' => $username]));

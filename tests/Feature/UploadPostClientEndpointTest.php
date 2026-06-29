@@ -27,6 +27,7 @@ function uploadPostClientWithFake(HttpFactory $http, array $payload = []): Uploa
             'success' => true,
             'notifications' => ['webhook_url' => 'https://example.com/webhook'],
             'username' => 'profile',
+            'profile' => ['username' => 'profile', 'platforms' => ['instagram']],
             'jwt' => 'jwt_123',
             'url' => 'https://connect.example.com',
             ...$payload,
@@ -94,6 +95,7 @@ it('calls scheduling and user endpoints', function (): void {
         ->and($client->cancelScheduled('job_123')->get('status'))->toBe('ok')
         ->and($client->editScheduled('job_123', '2026-01-01T00:00:00Z', 'UTC')->get('status'))->toBe('ok')
         ->and($client->listUsers()->items)->toBe([['id' => 1]])
+        ->and($client->getUser('profile')->profile)->toBe(['username' => 'profile', 'platforms' => ['instagram']])
         ->and($client->createUser('profile')->username)->toBe('profile')
         ->and($client->deleteUser('profile')->get('status'))->toBe('ok')
         ->and($client->generateJwt(new GenerateJwtData(username: 'profile', platforms: [Platform::X]))->jwt)->toBe('jwt_123')
@@ -117,6 +119,9 @@ it('calls scheduling and user endpoints', function (): void {
     );
     $http->assertSent(
         fn ($request): bool => $request->method() === 'POST' && str_ends_with((string) $request->url(), '/uploadposts/users/generate-jwt')
+    );
+    $http->assertSent(
+        fn ($request): bool => $request->method() === 'GET' && str_ends_with((string) $request->url(), '/uploadposts/users/profile')
     );
     $http->assertSent(
         fn ($request): bool => $request->method() === 'POST'

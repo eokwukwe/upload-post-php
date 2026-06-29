@@ -165,7 +165,7 @@ The client also supports:
 - `getHistory()`
 - `getAnalytics()`, `getTotalImpressions()`, `getPostAnalytics()`, and `getPlatformMetrics()`
 - `listScheduled()`, `editScheduled()`, and `cancelScheduled()`
-- `listUsers()`, `createUser()`, `deleteUser()`, `generateJwt()`, and `validateJwt()`
+- `listUsers()`, `getUser()`, `createUser()`, `deleteUser()`, `generateJwt()`, and `validateJwt()`
 - `configureNotifications()` and `configureWebhook()`
 - `getPostComments()`, `replyToComment()`, and `publicReplyToComment()`
 - Page/location helpers for Facebook, LinkedIn, Pinterest, and Google Business
@@ -249,7 +249,7 @@ Current response types:
 | `editScheduled()` | `ScheduledPostResponse` | `success`, `job_id`, `scheduled_date`, `title`, `caption` |
 | `cancelScheduled()`, `deleteUser()`, `validateJwt()`, `replyToComment()`, `publicReplyToComment()`, `selectGoogleBusinessLocation()` | `ActionResponse` | `success`, `message`, `recipient_id`, `message_id` |
 | `listUsers()` | `UserProfilesResponse` | `success`, `profiles`, `limit`, `plan` |
-| `createUser()` | `UserResponse` | `success`, `username`, `profile` |
+| `getUser()`, `createUser()` | `UserResponse` | `success`, `username`, `profile` |
 | `generateJwt()` | `JwtResponse` | `success`, `jwt`, `url`, `access_url`, `duration` |
 | `configureNotifications()`, `configureWebhook()` | `NotificationConfigResponse` | `success`, `notifications` |
 | `getPostComments()` | `CommentsResponse` | `success`, `comments`, `pagination` |

@@ -48,6 +48,7 @@ use Softgeng\UploadPost\UploadPostClient;
  * @method static ScheduledPostResponse editScheduled(string $job_id, string $scheduled_date, ?string $timezone = null)
  * @method static UserProfilesResponse listUsers()
  * @method static UserResponse createUser(string $username)
+ * @method static UserResponse getUser(string $username)
  * @method static ActionResponse deleteUser(string $username)
  * @method static JwtResponse generateJwt(GenerateJwtData $data)
  * @method static ActionResponse validateJwt(string $jwt)
