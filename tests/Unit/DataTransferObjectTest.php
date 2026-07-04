@@ -9,12 +9,16 @@ use Softgeng\UploadPost\Data\NotificationConfigData;
 use Softgeng\UploadPost\Data\PlatformOptions;
 use Softgeng\UploadPost\Data\Responses\ActionResponse;
 use Softgeng\UploadPost\Data\Responses\CommentsResponse;
+use Softgeng\UploadPost\Data\Responses\FacebookPagesResponse;
 use Softgeng\UploadPost\Data\Responses\GenericResponse;
+use Softgeng\UploadPost\Data\Responses\GoogleBusinessLocationsResponse;
 use Softgeng\UploadPost\Data\Responses\HistoryResponse;
 use Softgeng\UploadPost\Data\Responses\JwtResponse;
+use Softgeng\UploadPost\Data\Responses\LinkedinPagesResponse;
 use Softgeng\UploadPost\Data\Responses\ListResponse;
 use Softgeng\UploadPost\Data\Responses\MediaResponse;
 use Softgeng\UploadPost\Data\Responses\NotificationConfigResponse;
+use Softgeng\UploadPost\Data\Responses\PinterestBoardsResponse;
 use Softgeng\UploadPost\Data\Responses\ResourceListResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
@@ -360,6 +364,10 @@ test('response DTOs expose typed fields and raw payloads', function (): void {
     $scheduled = ScheduledPostsResponse::fromArray(['scheduled_posts' => [['job_id' => 'job']]]);
     $scheduledPost = ScheduledPostResponse::fromArray(['success' => true, 'job_id' => 'job', 'scheduled_date' => '2026-01-01T00:00:00Z', 'title' => 'Title', 'caption' => 'Caption']);
     $resources = ResourceListResponse::fromArray(['success' => true, 'boards' => [['id' => 'board']], 'pinterest_account_used' => 'pin'], 'boards');
+    $facebookPages = FacebookPagesResponse::fromArray(['success' => true, 'pages' => [['id' => 'facebook-page']]]);
+    $linkedinPages = LinkedinPagesResponse::fromArray(['success' => true, 'pages' => [['id' => 'linkedin-page', 'vanityName' => 'company']]]);
+    $pinterestBoards = PinterestBoardsResponse::fromArray(['success' => true, 'boards' => [['id' => 'board']], 'pinterest_account_used' => 'pin']);
+    $googleBusinessLocations = GoogleBusinessLocationsResponse::fromArray(['success' => true, 'locations' => [['name' => 'accounts/1/locations/2']]]);
     $users = UserProfilesResponse::fromArray(['success' => true, 'profiles' => [['username' => 'profile']], 'limit' => '5', 'plan' => 'pro']);
     $notifications = NotificationConfigResponse::fromArray([
         'success' => true,
@@ -401,6 +409,15 @@ test('response DTOs expose typed fields and raw payloads', function (): void {
         ->and($scheduledPost->caption)->toBe('Caption')
         ->and($resources->items)->toBe([['id' => 'board']])
         ->and($resources->pinterest_account_used)->toBe('pin')
+        ->and($facebookPages->pages)->toBe([['id' => 'facebook-page']])
+        ->and($facebookPages->items)->toBe([['id' => 'facebook-page']])
+        ->and($linkedinPages->pages)->toBe([['id' => 'linkedin-page', 'vanityName' => 'company']])
+        ->and($linkedinPages->items)->toBe([['id' => 'linkedin-page', 'vanityName' => 'company']])
+        ->and($pinterestBoards->boards)->toBe([['id' => 'board']])
+        ->and($pinterestBoards->items)->toBe([['id' => 'board']])
+        ->and($pinterestBoards->pinterest_account_used)->toBe('pin')
+        ->and($googleBusinessLocations->locations)->toBe([['name' => 'accounts/1/locations/2']])
+        ->and($googleBusinessLocations->items)->toBe([['name' => 'accounts/1/locations/2']])
         ->and($users->profiles)->toBe([['username' => 'profile']])
         ->and($users->items)->toBe([['username' => 'profile']])
         ->and($users->limit)->toBe(5)
@@ -427,8 +444,12 @@ test('response DTOs cover fallback accessors and scalar booleans', function (): 
         ->and($reply->recipient_id)->toBe('123')
         ->and($reply->message_id)->toBe('mid')
         ->and(CommentsResponse::fromArray(['comments' => []])->missing)->toBeNull()
+        ->and(FacebookPagesResponse::fromArray(['pages' => []])->missing)->toBeNull()
+        ->and(GoogleBusinessLocationsResponse::fromArray(['locations' => []])->missing)->toBeNull()
         ->and(HistoryResponse::fromArray(['history' => []])->missing)->toBeNull()
+        ->and(LinkedinPagesResponse::fromArray(['pages' => []])->missing)->toBeNull()
         ->and(MediaResponse::fromArray(['media' => []])->missing)->toBeNull()
+        ->and(PinterestBoardsResponse::fromArray(['boards' => []])->missing)->toBeNull()
         ->and(ScheduledPostsResponse::fromArray(['scheduled_posts' => []])->missing)->toBeNull()
         ->and(UserProfilesResponse::fromArray(['profiles' => []])->missing)->toBeNull();
 });

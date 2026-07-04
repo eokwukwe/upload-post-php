@@ -145,6 +145,7 @@ test('video options include selected platform-specific fields', function (): voi
             location_id: 'location',
             share_to_feed: true,
             cover_url: 'https://example.com/cover.jpg',
+            cover_image: 'https://example.com/cover-image.jpg',
             audio_name: 'audio',
             thumb_offset: '1',
             tags: ['sdk'],
@@ -198,6 +199,7 @@ test('video options include selected platform-specific fields', function (): voi
     expect($names)->toContain(
         'privacy_level',
         'cover_url',
+        'cover_image',
         'youtube_subtitle_file_0',
         'visibility',
         'facebook_page_id',

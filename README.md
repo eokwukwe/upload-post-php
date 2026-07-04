@@ -253,7 +253,10 @@ Current response types:
 | `generateJwt()` | `JwtResponse` | `success`, `jwt`, `url`, `access_url`, `duration` |
 | `configureNotifications()`, `configureWebhook()` | `NotificationConfigResponse` | `success`, `notifications` |
 | `getPostComments()` | `CommentsResponse` | `success`, `comments`, `pagination` |
-| `getFacebookPages()`, `getLinkedinPages()`, `getPinterestBoards()`, `getGoogleBusinessLocations()` | `ResourceListResponse` | `success`, `items`, `pinterest_account_used` |
+| `getFacebookPages()` | `FacebookPagesResponse` | `success`, `pages` |
+| `getLinkedinPages()` | `LinkedinPagesResponse` | `success`, `pages` |
+| `getPinterestBoards()` | `PinterestBoardsResponse` | `success`, `boards`, `pinterest_account_used` |
+| `getGoogleBusinessLocations()` | `GoogleBusinessLocationsResponse` | `success`, `locations` |
 
 Some helper methods still return `GenericResponse` when the public API schema does not define a dedicated response shape for that endpoint. `GenericResponse` still supports `get()` and `toArray()`.
 

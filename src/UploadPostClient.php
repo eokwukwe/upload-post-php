@@ -14,12 +14,15 @@ use Softgeng\UploadPost\Data\NotificationConfigData;
 use Softgeng\UploadPost\Data\Responses\ActionResponse;
 use Softgeng\UploadPost\Data\Responses\AnalyticsResponse;
 use Softgeng\UploadPost\Data\Responses\CommentsResponse;
+use Softgeng\UploadPost\Data\Responses\FacebookPagesResponse;
 use Softgeng\UploadPost\Data\Responses\GenericResponse;
+use Softgeng\UploadPost\Data\Responses\GoogleBusinessLocationsResponse;
 use Softgeng\UploadPost\Data\Responses\HistoryResponse;
 use Softgeng\UploadPost\Data\Responses\JwtResponse;
+use Softgeng\UploadPost\Data\Responses\LinkedinPagesResponse;
 use Softgeng\UploadPost\Data\Responses\MediaResponse;
 use Softgeng\UploadPost\Data\Responses\NotificationConfigResponse;
-use Softgeng\UploadPost\Data\Responses\ResourceListResponse;
+use Softgeng\UploadPost\Data\Responses\PinterestBoardsResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
@@ -300,35 +303,31 @@ final readonly class UploadPostClient
         );
     }
 
-    public function getFacebookPages(?string $profile = null): ResourceListResponse
+    public function getFacebookPages(?string $profile = null): FacebookPagesResponse
     {
-        return ResourceListResponse::fromArray(
-            $this->get('/uploadposts/facebook/pages', $this->clean(['profile' => $profile])),
-            'pages',
+        return FacebookPagesResponse::fromArray(
+            $this->get('/uploadposts/facebook/pages', $this->clean(['profile' => $profile]))
         );
     }
 
-    public function getLinkedinPages(?string $profile = null): ResourceListResponse
+    public function getLinkedinPages(?string $profile = null): LinkedinPagesResponse
     {
-        return ResourceListResponse::fromArray(
-            $this->get('/uploadposts/linkedin/pages', $this->clean(['profile' => $profile])),
-            'pages',
+        return LinkedinPagesResponse::fromArray(
+            $this->get('/uploadposts/linkedin/pages', $this->clean(['profile' => $profile]))
         );
     }
 
-    public function getPinterestBoards(?string $profile = null): ResourceListResponse
+    public function getPinterestBoards(?string $profile = null): PinterestBoardsResponse
     {
-        return ResourceListResponse::fromArray(
-            $this->get('/uploadposts/pinterest/boards', $this->clean(['profile' => $profile])),
-            'boards',
+        return PinterestBoardsResponse::fromArray(
+            $this->get('/uploadposts/pinterest/boards', $this->clean(['profile' => $profile]))
         );
     }
 
-    public function getGoogleBusinessLocations(?string $profile = null): ResourceListResponse
+    public function getGoogleBusinessLocations(?string $profile = null): GoogleBusinessLocationsResponse
     {
-        return ResourceListResponse::fromArray(
-            $this->get('/uploadposts/google-business/locations', $this->clean(['profile' => $profile])),
-            'locations',
+        return GoogleBusinessLocationsResponse::fromArray(
+            $this->get('/uploadposts/google-business/locations', $this->clean(['profile' => $profile]))
         );
     }
 

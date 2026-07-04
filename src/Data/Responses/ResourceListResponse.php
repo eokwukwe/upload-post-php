@@ -6,7 +6,7 @@ namespace Softgeng\UploadPost\Data\Responses;
 
 use Softgeng\UploadPost\Support\Arr;
 
-final readonly class ResourceListResponse extends ApiResponse
+readonly class ResourceListResponse extends ApiResponse
 {
     /**
      * @param  array<string, mixed>  $raw

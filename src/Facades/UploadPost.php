@@ -11,12 +11,15 @@ use Softgeng\UploadPost\Data\NotificationConfigData;
 use Softgeng\UploadPost\Data\Responses\ActionResponse;
 use Softgeng\UploadPost\Data\Responses\AnalyticsResponse;
 use Softgeng\UploadPost\Data\Responses\CommentsResponse;
+use Softgeng\UploadPost\Data\Responses\FacebookPagesResponse;
 use Softgeng\UploadPost\Data\Responses\GenericResponse;
+use Softgeng\UploadPost\Data\Responses\GoogleBusinessLocationsResponse;
 use Softgeng\UploadPost\Data\Responses\HistoryResponse;
 use Softgeng\UploadPost\Data\Responses\JwtResponse;
+use Softgeng\UploadPost\Data\Responses\LinkedinPagesResponse;
 use Softgeng\UploadPost\Data\Responses\MediaResponse;
 use Softgeng\UploadPost\Data\Responses\NotificationConfigResponse;
-use Softgeng\UploadPost\Data\Responses\ResourceListResponse;
+use Softgeng\UploadPost\Data\Responses\PinterestBoardsResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
@@ -61,10 +64,10 @@ use Softgeng\UploadPost\UploadPostClient;
  * @method static CommentsResponse getPostComments(string $user, array<string, string> $query = [])
  * @method static ActionResponse replyToComment(string $user, string $commentId, string $message)
  * @method static ActionResponse publicReplyToComment(string $user, string $commentId, string $message)
- * @method static ResourceListResponse getFacebookPages(?string $profile = null)
- * @method static ResourceListResponse getLinkedinPages(?string $profile = null)
- * @method static ResourceListResponse getPinterestBoards(?string $profile = null)
- * @method static ResourceListResponse getGoogleBusinessLocations(?string $profile = null)
+ * @method static FacebookPagesResponse getFacebookPages(?string $profile = null)
+ * @method static LinkedinPagesResponse getLinkedinPages(?string $profile = null)
+ * @method static PinterestBoardsResponse getPinterestBoards(?string $profile = null)
+ * @method static GoogleBusinessLocationsResponse getGoogleBusinessLocations(?string $profile = null)
  * @method static ActionResponse selectGoogleBusinessLocation(string $locationId, ?string $profile = null)
  */
 final class UploadPost extends Facade

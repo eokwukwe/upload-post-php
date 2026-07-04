@@ -24,6 +24,22 @@ function uploadPostClientWithFake(HttpFactory $http, array $payload = []): Uploa
             'status' => 'ok',
             'message' => 'done',
             'data' => [['id' => 1]],
+            'pages' => [[
+                'id' => '109876543210987',
+                'name' => 'My Business Page',
+                'picture' => 'https://url.to/profile/picture.jpg',
+                'account_id' => '1234567890123456',
+            ]],
+            'boards' => [[
+                'id' => '987654321098765432',
+                'name' => 'Summer Recipes',
+            ]],
+            'locations' => [[
+                'name' => 'accounts/123456789/locations/111111111',
+                'title' => 'Main Street Store',
+                'account_id' => 'accounts_123456789_111111111',
+            ]],
+            'pinterest_account_used' => 'pinterest_username',
             'success' => true,
             'notifications' => ['webhook_url' => 'https://example.com/webhook'],
             'username' => 'profile',
@@ -147,10 +163,31 @@ it('calls comment and platform resource endpoints', function (): void {
     expect($client->getPostComments('profile', ['post_id' => 'post_123'])->items)->toBe([['id' => 1]])
         ->and($client->replyToComment('profile', 'comment_123', 'Thanks')->get('status'))->toBe('ok')
         ->and($client->publicReplyToComment('profile', 'comment_123', 'Thanks')->get('status'))->toBe('ok')
-        ->and($client->getFacebookPages('profile')->items)->toBe([['id' => 1]])
-        ->and($client->getLinkedinPages('profile')->items)->toBe([['id' => 1]])
-        ->and($client->getPinterestBoards('profile')->items)->toBe([['id' => 1]])
-        ->and($client->getGoogleBusinessLocations('profile')->items)->toBe([['id' => 1]])
+        ->and($client->getFacebookPages('profile')->pages)->toBe([[
+            'id' => '109876543210987',
+            'name' => 'My Business Page',
+            'picture' => 'https://url.to/profile/picture.jpg',
+            'account_id' => '1234567890123456',
+        ]])
+        ->and($client->getFacebookPages('profile')->items)->toBe($client->getFacebookPages('profile')->pages)
+        ->and($client->getLinkedinPages('profile')->pages)->toBe([[
+            'id' => '109876543210987',
+            'name' => 'My Business Page',
+            'picture' => 'https://url.to/profile/picture.jpg',
+            'account_id' => '1234567890123456',
+        ]])
+        ->and($client->getPinterestBoards('profile')->boards)->toBe([[
+            'id' => '987654321098765432',
+            'name' => 'Summer Recipes',
+        ]])
+        ->and($client->getPinterestBoards('profile')->pinterest_account_used)->toBe('pinterest_username')
+        ->and($client->getPinterestBoards('profile')->items)->toBe($client->getPinterestBoards('profile')->boards)
+        ->and($client->getGoogleBusinessLocations('profile')->locations)->toBe([[
+            'name' => 'accounts/123456789/locations/111111111',
+            'title' => 'Main Street Store',
+            'account_id' => 'accounts_123456789_111111111',
+        ]])
+        ->and($client->getGoogleBusinessLocations('profile')->items)->toBe($client->getGoogleBusinessLocations('profile')->locations)
         ->and($client->selectGoogleBusinessLocation('location_123', 'profile')->get('status'))->toBe('ok');
 
     $http->assertSent(
