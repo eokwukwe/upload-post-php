@@ -23,6 +23,10 @@ use Softgeng\UploadPost\Data\Responses\LinkedinPagesResponse;
 use Softgeng\UploadPost\Data\Responses\MediaResponse;
 use Softgeng\UploadPost\Data\Responses\NotificationConfigResponse;
 use Softgeng\UploadPost\Data\Responses\PinterestBoardsResponse;
+use Softgeng\UploadPost\Data\Responses\QueueNextSlotResponse;
+use Softgeng\UploadPost\Data\Responses\QueuePreviewResponse;
+use Softgeng\UploadPost\Data\Responses\QueueSettingsResponse;
+use Softgeng\UploadPost\Data\Responses\QueueSlotFullResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
@@ -187,6 +191,63 @@ final readonly class UploadPostClient
                 '/uploadposts/schedule/'.rawurlencode($job_id),
                 $this->clean(['scheduled_date' => $scheduled_date, 'timezone' => $timezone])
             )
+        );
+    }
+
+    public function getQueueSettings(string $profileUsername): QueueSettingsResponse
+    {
+        return QueueSettingsResponse::fromArray(
+            $this->get('/uploadposts/queue/settings', ['profile_username' => $profileUsername])
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $settings
+     */
+    public function updateQueueSettings(string $profileUsername, array $settings = []): QueueSettingsResponse
+    {
+        return QueueSettingsResponse::fromArray(
+            $this->post(
+                '/uploadposts/queue/settings',
+                $this->clean(['profile_username' => $profileUsername, ...$settings])
+            )
+        );
+    }
+
+    public function getQueuePreview(string $profileUsername, ?int $count = null): QueuePreviewResponse
+    {
+        return QueuePreviewResponse::fromArray(
+            $this->get(
+                '/uploadposts/queue/preview',
+                $this->clean(['profile_username' => $profileUsername, 'count' => $count])
+            )
+        );
+    }
+
+    public function markQueueSlotFull(string $profileUsername, string $slotDatetime): QueueSlotFullResponse
+    {
+        return QueueSlotFullResponse::fromArray(
+            $this->post('/uploadposts/queue/slot-full', [
+                'profile_username' => $profileUsername,
+                'slot_datetime' => $slotDatetime,
+            ])
+        );
+    }
+
+    public function unmarkQueueSlotFull(string $profileUsername, string $slotDatetime): QueueSlotFullResponse
+    {
+        return QueueSlotFullResponse::fromArray(
+            $this->delete('/uploadposts/queue/slot-full', [
+                'profile_username' => $profileUsername,
+                'slot_datetime' => $slotDatetime,
+            ])
+        );
+    }
+
+    public function getNextAvailableSlot(string $profileUsername): QueueNextSlotResponse
+    {
+        return QueueNextSlotResponse::fromArray(
+            $this->get('/uploadposts/queue/next-slot', ['profile_username' => $profileUsername])
         );
     }
 

@@ -20,6 +20,10 @@ use Softgeng\UploadPost\Data\Responses\LinkedinPagesResponse;
 use Softgeng\UploadPost\Data\Responses\MediaResponse;
 use Softgeng\UploadPost\Data\Responses\NotificationConfigResponse;
 use Softgeng\UploadPost\Data\Responses\PinterestBoardsResponse;
+use Softgeng\UploadPost\Data\Responses\QueueNextSlotResponse;
+use Softgeng\UploadPost\Data\Responses\QueuePreviewResponse;
+use Softgeng\UploadPost\Data\Responses\QueueSettingsResponse;
+use Softgeng\UploadPost\Data\Responses\QueueSlotFullResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
@@ -49,6 +53,12 @@ use Softgeng\UploadPost\UploadPostClient;
  * @method static ScheduledPostsResponse listScheduled()
  * @method static ActionResponse cancelScheduled(string $job_id)
  * @method static ScheduledPostResponse editScheduled(string $job_id, string $scheduled_date, ?string $timezone = null)
+ * @method static QueueSettingsResponse getQueueSettings(string $profileUsername)
+ * @method static QueueSettingsResponse updateQueueSettings(string $profileUsername, array<string, mixed> $settings = [])
+ * @method static QueuePreviewResponse getQueuePreview(string $profileUsername, ?int $count = null)
+ * @method static QueueSlotFullResponse markQueueSlotFull(string $profileUsername, string $slotDatetime)
+ * @method static QueueSlotFullResponse unmarkQueueSlotFull(string $profileUsername, string $slotDatetime)
+ * @method static QueueNextSlotResponse getNextAvailableSlot(string $profileUsername)
  * @method static UserProfilesResponse listUsers()
  * @method static UserResponse createUser(string $username)
  * @method static UserResponse getUser(string $username)

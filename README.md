@@ -165,6 +165,7 @@ The client also supports:
 - `getHistory()`
 - `getAnalytics()`, `getTotalImpressions()`, `getPostAnalytics()`, and `getPlatformMetrics()`
 - `listScheduled()`, `editScheduled()`, and `cancelScheduled()`
+- `getQueueSettings()`, `updateQueueSettings()`, `getQueuePreview()`, `markQueueSlotFull()`, `unmarkQueueSlotFull()`, and `getNextAvailableSlot()`
 - `listUsers()`, `getUser()`, `createUser()`, `deleteUser()`, `generateJwt()`, and `validateJwt()`
 - `configureNotifications()` and `configureWebhook()`
 - `getPostComments()`, `replyToComment()`, and `publicReplyToComment()`
@@ -247,6 +248,10 @@ Current response types:
 | `getMedia()` | `MediaResponse` | `success`, `media` |
 | `listScheduled()` | `ScheduledPostsResponse` | `scheduled_posts` |
 | `editScheduled()` | `ScheduledPostResponse` | `success`, `job_id`, `scheduled_date`, `title`, `caption` |
+| `getQueueSettings()`, `updateQueueSettings()` | `QueueSettingsResponse` | `success`, `queue_settings` |
+| `getQueuePreview()` | `QueuePreviewResponse` | `success`, `timezone`, `max_posts_per_slot`, `slots`, `next_available` |
+| `markQueueSlotFull()`, `unmarkQueueSlotFull()` | `QueueSlotFullResponse` | `success`, `message`, `full_slots` |
+| `getNextAvailableSlot()` | `QueueNextSlotResponse` | `success`, `next_slot`, `message` |
 | `cancelScheduled()`, `deleteUser()`, `validateJwt()`, `replyToComment()`, `publicReplyToComment()`, `selectGoogleBusinessLocation()` | `ActionResponse` | `success`, `message`, `recipient_id`, `message_id` |
 | `listUsers()` | `UserProfilesResponse` | `success`, `profiles`, `limit`, `plan` |
 | `getUser()`, `createUser()` | `UserResponse` | `success`, `username`, `profile` |

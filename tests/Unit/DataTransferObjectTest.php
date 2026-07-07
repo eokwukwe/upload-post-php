@@ -19,6 +19,10 @@ use Softgeng\UploadPost\Data\Responses\ListResponse;
 use Softgeng\UploadPost\Data\Responses\MediaResponse;
 use Softgeng\UploadPost\Data\Responses\NotificationConfigResponse;
 use Softgeng\UploadPost\Data\Responses\PinterestBoardsResponse;
+use Softgeng\UploadPost\Data\Responses\QueueNextSlotResponse;
+use Softgeng\UploadPost\Data\Responses\QueuePreviewResponse;
+use Softgeng\UploadPost\Data\Responses\QueueSettingsResponse;
+use Softgeng\UploadPost\Data\Responses\QueueSlotFullResponse;
 use Softgeng\UploadPost\Data\Responses\ResourceListResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
@@ -368,6 +372,52 @@ test('response DTOs expose typed fields and raw payloads', function (): void {
     $linkedinPages = LinkedinPagesResponse::fromArray(['success' => true, 'pages' => [['id' => 'linkedin-page', 'vanityName' => 'company']]]);
     $pinterestBoards = PinterestBoardsResponse::fromArray(['success' => true, 'boards' => [['id' => 'board']], 'pinterest_account_used' => 'pin']);
     $googleBusinessLocations = GoogleBusinessLocationsResponse::fromArray(['success' => true, 'locations' => [['name' => 'accounts/1/locations/2']]]);
+    $queueSettings = QueueSettingsResponse::fromArray([
+        'success' => true,
+        'queue_settings' => [
+            'timezone' => 'America/New_York',
+            'slots' => [['hour' => 9, 'minute' => 0]],
+            'days_of_week' => [0, 1, 2, 3, 4, 5, 6],
+            'max_posts_per_slot' => 1,
+            'full_slots' => [],
+        ],
+    ]);
+    $queueSettingsWithoutArray = QueueSettingsResponse::fromArray([
+        'success' => true,
+        'queue_settings' => 'invalid',
+    ]);
+    $queueSettingsWithNumericKeys = QueueSettingsResponse::fromArray([
+        'success' => true,
+        'queue_settings' => [
+            ['hour' => 9, 'minute' => 0],
+            'timezone' => 'America/New_York',
+        ],
+    ]);
+    $queuePreview = QueuePreviewResponse::fromArray([
+        'success' => true,
+        'timezone' => 'America/New_York',
+        'max_posts_per_slot' => '3',
+        'slots' => [['datetime_utc' => '2026-01-01T14:00:00+00:00']],
+        'next_available' => '2026-01-01T14:00:00+00:00',
+    ]);
+    $queueSlotFull = QueueSlotFullResponse::fromArray([
+        'success' => true,
+        'message' => 'Slot marked as full',
+        'full_slots' => ['2026-01-01T14:00:00+00:00'],
+    ]);
+    $queueNextSlot = QueueNextSlotResponse::fromArray([
+        'success' => true,
+        'next_slot' => [
+            'datetime_utc' => '2026-01-01T14:00:00+00:00',
+            'datetime_local' => '2026-01-01T09:00:00-05:00',
+            'timezone' => 'America/New_York',
+        ],
+    ]);
+    $queueNextSlotEmpty = QueueNextSlotResponse::fromArray([
+        'success' => true,
+        'next_slot' => null,
+        'message' => 'No available slots found',
+    ]);
     $users = UserProfilesResponse::fromArray(['success' => true, 'profiles' => [['username' => 'profile']], 'limit' => '5', 'plan' => 'pro']);
     $notifications = NotificationConfigResponse::fromArray([
         'success' => true,
@@ -418,6 +468,19 @@ test('response DTOs expose typed fields and raw payloads', function (): void {
         ->and($pinterestBoards->pinterest_account_used)->toBe('pin')
         ->and($googleBusinessLocations->locations)->toBe([['name' => 'accounts/1/locations/2']])
         ->and($googleBusinessLocations->items)->toBe([['name' => 'accounts/1/locations/2']])
+        ->and($queueSettings->queue_settings['timezone'])->toBe('America/New_York')
+        ->and($queueSettingsWithoutArray->queue_settings)->toBe([])
+        ->and($queueSettingsWithNumericKeys->queue_settings)->toBe(['timezone' => 'America/New_York'])
+        ->and($queuePreview->timezone)->toBe('America/New_York')
+        ->and($queuePreview->max_posts_per_slot)->toBe(3)
+        ->and($queuePreview->slots)->toBe([['datetime_utc' => '2026-01-01T14:00:00+00:00']])
+        ->and($queuePreview->items)->toBe([['datetime_utc' => '2026-01-01T14:00:00+00:00']])
+        ->and($queuePreview->next_available)->toBe('2026-01-01T14:00:00+00:00')
+        ->and($queueSlotFull->message)->toBe('Slot marked as full')
+        ->and($queueSlotFull->full_slots)->toBe(['2026-01-01T14:00:00+00:00'])
+        ->and($queueNextSlot->next_slot['timezone'])->toBe('America/New_York')
+        ->and($queueNextSlotEmpty->next_slot)->toBeNull()
+        ->and($queueNextSlotEmpty->message)->toBe('No available slots found')
         ->and($users->profiles)->toBe([['username' => 'profile']])
         ->and($users->items)->toBe([['username' => 'profile']])
         ->and($users->limit)->toBe(5)
@@ -450,6 +513,7 @@ test('response DTOs cover fallback accessors and scalar booleans', function (): 
         ->and(LinkedinPagesResponse::fromArray(['pages' => []])->missing)->toBeNull()
         ->and(MediaResponse::fromArray(['media' => []])->missing)->toBeNull()
         ->and(PinterestBoardsResponse::fromArray(['boards' => []])->missing)->toBeNull()
+        ->and(QueuePreviewResponse::fromArray(['slots' => []])->missing)->toBeNull()
         ->and(ScheduledPostsResponse::fromArray(['scheduled_posts' => []])->missing)->toBeNull()
         ->and(UserProfilesResponse::fromArray(['profiles' => []])->missing)->toBeNull();
 });

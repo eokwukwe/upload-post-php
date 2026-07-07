@@ -39,6 +39,34 @@ function uploadPostClientWithFake(HttpFactory $http, array $payload = []): Uploa
                 'title' => 'Main Street Store',
                 'account_id' => 'accounts_123456789_111111111',
             ]],
+            'queue_settings' => [
+                'timezone' => 'America/New_York',
+                'slots' => [
+                    ['hour' => 9, 'minute' => 0],
+                    ['hour' => 12, 'minute' => 0],
+                ],
+                'days_of_week' => [0, 1, 2, 3, 4],
+                'max_posts_per_slot' => 3,
+                'full_slots' => ['2026-01-01T14:00:00+00:00'],
+            ],
+            'timezone' => 'America/New_York',
+            'max_posts_per_slot' => 3,
+            'slots' => [[
+                'datetime_utc' => '2026-01-01T14:00:00+00:00',
+                'datetime_local' => '2026-01-01T09:00:00-05:00',
+                'available' => true,
+                'post_count' => 0,
+                'max_posts_per_slot' => 3,
+                'is_full' => false,
+                'manually_full' => false,
+            ]],
+            'next_available' => '2026-01-01T14:00:00+00:00',
+            'full_slots' => ['2026-01-01T14:00:00+00:00'],
+            'next_slot' => [
+                'datetime_utc' => '2026-01-01T14:00:00+00:00',
+                'datetime_local' => '2026-01-01T09:00:00-05:00',
+                'timezone' => 'America/New_York',
+            ],
             'pinterest_account_used' => 'pinterest_username',
             'success' => true,
             'notifications' => ['webhook_url' => 'https://example.com/webhook'],
@@ -153,6 +181,70 @@ it('calls scheduling and user endpoints', function (): void {
         fn ($request): bool => $request->method() === 'POST'
             && str_ends_with((string) $request->url(), '/uploadposts/users/notifications')
             && $request['webhook_events']['social_account_connected'] === false
+    );
+});
+
+it('calls queue endpoints', function (): void {
+    $http = new HttpFactory;
+    $client = uploadPostClientWithFake($http);
+
+    expect($client->getQueueSettings('profile')->queue_settings['timezone'])->toBe('America/New_York')
+        ->and($client->updateQueueSettings('profile', [
+            'timezone' => 'Europe/Madrid',
+            'slots' => [['hour' => 8, 'minute' => 30]],
+            'days_of_week' => [0, 1, 2, 3, 4],
+            'max_posts_per_slot' => 2,
+        ])->success)->toBeTrue()
+        ->and($client->getQueuePreview('profile', 5)->slots)->toBe([[
+            'datetime_utc' => '2026-01-01T14:00:00+00:00',
+            'datetime_local' => '2026-01-01T09:00:00-05:00',
+            'available' => true,
+            'post_count' => 0,
+            'max_posts_per_slot' => 3,
+            'is_full' => false,
+            'manually_full' => false,
+        ]])
+        ->and($client->getQueuePreview('profile', 5)->items)->toBe($client->getQueuePreview('profile', 5)->slots)
+        ->and($client->markQueueSlotFull('profile', '2026-01-01T14:00:00+00:00')->full_slots)->toBe(['2026-01-01T14:00:00+00:00'])
+        ->and($client->unmarkQueueSlotFull('profile', '2026-01-01T14:00:00+00:00')->message)->toBe('done')
+        ->and($client->getNextAvailableSlot('profile')->next_slot)->toBe([
+            'datetime_utc' => '2026-01-01T14:00:00+00:00',
+            'datetime_local' => '2026-01-01T09:00:00-05:00',
+            'timezone' => 'America/New_York',
+        ]);
+
+    $http->assertSent(
+        fn ($request): bool => $request->method() === 'GET'
+            && str_contains((string) $request->url(), '/uploadposts/queue/settings?profile_username=profile')
+    );
+    $http->assertSent(
+        fn ($request): bool => $request->method() === 'POST'
+            && str_ends_with((string) $request->url(), '/uploadposts/queue/settings')
+            && $request['profile_username'] === 'profile'
+            && $request['timezone'] === 'Europe/Madrid'
+            && $request['slots'] === [['hour' => 8, 'minute' => 30]]
+            && $request['days_of_week'] === [0, 1, 2, 3, 4]
+            && $request['max_posts_per_slot'] === 2
+    );
+    $http->assertSent(
+        fn ($request): bool => $request->method() === 'GET'
+            && str_contains((string) $request->url(), '/uploadposts/queue/preview?profile_username=profile&count=5')
+    );
+    $http->assertSent(
+        fn ($request): bool => $request->method() === 'POST'
+            && str_ends_with((string) $request->url(), '/uploadposts/queue/slot-full')
+            && $request['profile_username'] === 'profile'
+            && $request['slot_datetime'] === '2026-01-01T14:00:00+00:00'
+    );
+    $http->assertSent(
+        fn ($request): bool => $request->method() === 'DELETE'
+            && str_ends_with((string) $request->url(), '/uploadposts/queue/slot-full')
+            && $request['profile_username'] === 'profile'
+            && $request['slot_datetime'] === '2026-01-01T14:00:00+00:00'
+    );
+    $http->assertSent(
+        fn ($request): bool => $request->method() === 'GET'
+            && str_contains((string) $request->url(), '/uploadposts/queue/next-slot?profile_username=profile')
     );
 });
 
