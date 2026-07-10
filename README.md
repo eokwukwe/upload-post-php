@@ -298,12 +298,63 @@ use Softgeng\UploadPost\Facades\UploadPost;
 $status = UploadPost::getStatus('request-id');
 ```
 
+## Testing
+
+Use the built-in fake to test code that calls Upload-Post without sending real API requests.
+
+Plain PHP:
+
+```php
+use Softgeng\UploadPost\UploadPostClient;
+
+$fake = UploadPostClient::fake([
+    '/uploadposts/status*' => [
+        'request_id' => 'req_123',
+        'status' => 'done',
+    ],
+]);
+
+$status = $fake->client()->getStatus('req_123');
+
+$fake->assertSent('/uploadposts/status', 'GET');
+```
+
+Laravel facade:
+
+```php
+use Softgeng\UploadPost\Facades\UploadPost;
+
+$fake = UploadPost::fake([
+    '/upload_text' => [
+        'request_id' => 'req_123',
+        'status' => 'queued',
+    ],
+]);
+
+UploadPost::uploadText($data);
+
+$fake->assertSent('/upload_text', 'POST');
+```
+
+Custom status codes can be faked with `UploadPostFake::response()`:
+
+```php
+use Softgeng\UploadPost\Testing\UploadPostFake;
+use Softgeng\UploadPost\UploadPostClient;
+
+$fake = UploadPostClient::fake([
+    '/upload_text' => UploadPostFake::response(['message' => 'Invalid payload'], 422),
+]);
+```
+
+Fake response keys can be full URLs, endpoint paths like `/upload_text`, endpoint patterns like `/uploadposts/status*`, or `*` for a catch-all response.
+
 ## Design Notes
 
 - Request DTOs use Upload-Post API snake_case keys directly.
 - Response DTOs also expose snake_case properties matching API responses.
 - Enums are used for platform and known option values.
-- Core SDK uses the standalone Illuminate HTTP client (`illuminate/http`) for retries, timeouts, fakes, JSON helpers, and multipart requests.
+- Core SDK uses the standalone Illuminate HTTP client (`illuminate/http`) for retries, timeouts, testing fakes, JSON helpers, and multipart requests.
 - It works in plain PHP without a Laravel application; Laravel support is optional and lives in the service provider/facade.
 
 ## Development

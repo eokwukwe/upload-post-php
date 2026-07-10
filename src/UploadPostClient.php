@@ -41,6 +41,7 @@ use Softgeng\UploadPost\Exceptions\UploadPostConnectionException;
 use Softgeng\UploadPost\Exceptions\UploadPostException;
 use Softgeng\UploadPost\Exceptions\UploadPostValidationException;
 use Softgeng\UploadPost\Support\UploadPostConfig;
+use Softgeng\UploadPost\Testing\UploadPostFake;
 use Throwable;
 
 final readonly class UploadPostClient
@@ -72,6 +73,16 @@ final readonly class UploadPostClient
             retrySleepMs: $config->retrySleepMs,
             throwOnValidation: $config->throwOnValidation,
         ), $httpFactory);
+    }
+
+    /**
+     * @param  array<string, mixed>|callable  $responses
+     */
+    public static function fake(
+        array|callable $responses = [],
+        ?UploadPostConfig $config = null
+    ): UploadPostFake {
+        return UploadPostFake::make($responses, $config);
     }
 
     public function uploadVideo(UploadVideoData $data): UploadResponse

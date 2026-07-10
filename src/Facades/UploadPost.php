@@ -34,6 +34,8 @@ use Softgeng\UploadPost\Data\UploadDocumentData;
 use Softgeng\UploadPost\Data\UploadPhotosData;
 use Softgeng\UploadPost\Data\UploadTextData;
 use Softgeng\UploadPost\Data\UploadVideoData;
+use Softgeng\UploadPost\Support\UploadPostConfig;
+use Softgeng\UploadPost\Testing\UploadPostFake;
 use Softgeng\UploadPost\UploadPostClient;
 
 /**
@@ -82,6 +84,24 @@ use Softgeng\UploadPost\UploadPostClient;
  */
 final class UploadPost extends Facade
 {
+    /**
+     * @param  array<string, mixed>|callable  $responses
+     */
+    public static function fake(array|callable $responses = []): UploadPostFake
+    {
+        $fake = UploadPostFake::make(
+            $responses,
+            UploadPostConfig::fromArray(config('upload-post')),
+        );
+
+        app()->instance(UploadPostFake::class, $fake);
+        app()->instance(UploadPostClient::class, $fake->client());
+
+        self::swap($fake->client());
+
+        return $fake;
+    }
+
     protected static function getFacadeAccessor(): string
     {
         return UploadPostClient::class;
