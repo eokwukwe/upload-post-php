@@ -106,6 +106,7 @@ test('request DTOs can be created from arrays', function (): void {
         'title' => 'Video',
         'async_upload' => 'true',
         'tags' => ['php'],
+        'youtube_playlist_id' => 'playlist-123',
         'youtube_subtitles' => [
             ['language' => 'en', 'url' => 'https://example.com/subtitles.vtt'],
         ],
@@ -115,6 +116,7 @@ test('request DTOs can be created from arrays', function (): void {
 
     expect($video->idempotency_key)->toBe('idem-video')
         ->and($video->common->async_upload)->toBeTrue()
+        ->and($videoContents['youtube_playlist_id'])->toBe('playlist-123')
         ->and($videoContents['tags[]'])->toBe('php')
         ->and($videoContents['youtube_subtitle_language_0'])->toBe('en');
 
@@ -156,6 +158,7 @@ test('request DTOs can be converted to arrays', function (): void {
         options: new PlatformOptions(
             tags: ['php'],
             embeddable: false,
+            youtube_playlist_id: 'playlist-123',
             youtube_subtitles: [
                 new YoutubeSubtitleData(language: 'en', url: 'https://example.com/subtitles.vtt'),
             ],
@@ -175,6 +178,7 @@ test('request DTOs can be converted to arrays', function (): void {
         'options' => [
             'tags' => ['php'],
             'embeddable' => false,
+            'youtube_playlist_id' => 'playlist-123',
             'youtube_subtitles' => [
                 ['language' => 'en', 'url' => 'https://example.com/subtitles.vtt'],
             ],

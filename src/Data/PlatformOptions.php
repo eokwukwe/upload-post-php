@@ -64,6 +64,7 @@ final readonly class PlatformOptions
         public ?string $blockedCountries = null,
         public ?bool $hasPaidProductPlacement = null,
         public ?string $recordingDate = null,
+        public ?string $youtube_playlist_id = null,
         public array $youtube_subtitles = [],
 
         public LinkedinVisibility|string|null $visibility = null,
@@ -158,6 +159,7 @@ final readonly class PlatformOptions
             blockedCountries: self::stringOrNull($data['blockedCountries'] ?? null),
             hasPaidProductPlacement: self::boolOrNull($data['hasPaidProductPlacement'] ?? null),
             recordingDate: self::stringOrNull($data['recordingDate'] ?? null),
+            youtube_playlist_id: self::stringOrNull($data['youtube_playlist_id'] ?? null),
             youtube_subtitles: self::youtubeSubtitlesFrom($data['youtube_subtitles'] ?? []),
             visibility: self::stringOrNull($data['visibility'] ?? null),
             target_linkedin_page_id: self::stringOrNull($data['target_linkedin_page_id'] ?? null),
@@ -241,6 +243,7 @@ final readonly class PlatformOptions
             'blockedCountries' => $this->blockedCountries,
             'hasPaidProductPlacement' => $this->hasPaidProductPlacement,
             'recordingDate' => $this->recordingDate,
+            'youtube_playlist_id' => $this->youtube_playlist_id,
             'youtube_subtitles' => array_map(
                 static fn (YoutubeSubtitleData $subtitle): array => $subtitle->toArray(),
                 $this->youtube_subtitles
@@ -459,7 +462,8 @@ final readonly class PlatformOptions
             ->field('allowedCountries', $this->allowedCountries)
             ->field('blockedCountries', $this->blockedCountries)
             ->field('hasPaidProductPlacement', $this->hasPaidProductPlacement)
-            ->field('recordingDate', $this->recordingDate);
+            ->field('recordingDate', $this->recordingDate)
+            ->field('youtube_playlist_id', $this->youtube_playlist_id);
         foreach ($this->youtube_subtitles as $idx => $subtitle) {
             $subtitle->addTo($p, (int) $idx);
         }
