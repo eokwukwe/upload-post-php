@@ -24,6 +24,7 @@ final readonly class PlatformOptions
      * @param  list<string>  $tags
      * @param  list<YoutubeSubtitleData>  $youtube_subtitles
      * @param  list<string>  $tagged_user_ids
+     * @param  list<string>  $exclude_reply_user_ids
      * @param  list<string>  $poll_options
      */
     public function __construct(
@@ -43,6 +44,7 @@ final readonly class PlatformOptions
         public ?string $collaborators = null,
         public ?string $user_tags = null,
         public ?string $location_id = null,
+        public ?string $share_mode = null,
         public ?bool $share_to_feed = null,
         public ?string $cover_url = null,
         public string|object|null $cover_image = null,
@@ -55,6 +57,7 @@ final readonly class PlatformOptions
         public ?bool $embeddable = null,
         public ?string $license = null,
         public ?bool $publicStatsViewable = null,
+        public string|object|null $thumbnail = null,
         public ?string $thumbnail_url = null,
         public ?bool $selfDeclaredMadeForKids = null,
         public ?bool $containsSyntheticMedia = null,
@@ -94,6 +97,8 @@ final readonly class PlatformOptions
         public ?string $direct_message_deep_link = null,
         public ?bool $x_long_text_as_post = null,
         public array $tagged_user_ids = [],
+        public ?string $reply_to_id = null,
+        public array $exclude_reply_user_ids = [],
         public ?string $place_id = null,
         public ?string $x_thread_image_layout = null,
         public ?string $post_url = null,
@@ -111,6 +116,19 @@ final readonly class PlatformOptions
         public ?string $reddit_link_url = null,
 
         public ?string $bluesky_link_url = null,
+
+        public ?string $gbp_location_id = null,
+        public ?string $gbp_topic_type = null,
+        public ?string $gbp_cta_type = null,
+        public ?string $gbp_cta_url = null,
+        public ?string $gbp_event_title = null,
+        public ?string $gbp_event_start_date = null,
+        public ?string $gbp_event_start_time = null,
+        public ?string $gbp_event_end_date = null,
+        public ?string $gbp_event_end_time = null,
+        public ?string $gbp_coupon_code = null,
+        public ?string $gbp_redeem_url = null,
+        public ?string $gbp_terms = null,
     ) {}
 
     public static function empty(): self
@@ -139,6 +157,7 @@ final readonly class PlatformOptions
             collaborators: self::stringOrNull($data['collaborators'] ?? null),
             user_tags: self::stringOrNull($data['user_tags'] ?? null),
             location_id: self::stringOrNull($data['location_id'] ?? null),
+            share_mode: self::stringOrNull($data['share_mode'] ?? null),
             share_to_feed: self::boolOrNull($data['share_to_feed'] ?? null),
             cover_url: self::stringOrNull($data['cover_url'] ?? null),
             cover_image: self::mediaInputOrNull($data['cover_image'] ?? null),
@@ -150,6 +169,7 @@ final readonly class PlatformOptions
             embeddable: self::boolOrNull($data['embeddable'] ?? null),
             license: self::stringOrNull($data['license'] ?? null),
             publicStatsViewable: self::boolOrNull($data['publicStatsViewable'] ?? null),
+            thumbnail: self::mediaInputOrNull($data['thumbnail'] ?? null),
             thumbnail_url: self::stringOrNull($data['thumbnail_url'] ?? null),
             selfDeclaredMadeForKids: self::boolOrNull($data['selfDeclaredMadeForKids'] ?? null),
             containsSyntheticMedia: self::boolOrNull($data['containsSyntheticMedia'] ?? null),
@@ -185,6 +205,8 @@ final readonly class PlatformOptions
             direct_message_deep_link: self::stringOrNull($data['direct_message_deep_link'] ?? null),
             x_long_text_as_post: self::boolOrNull($data['x_long_text_as_post'] ?? null),
             tagged_user_ids: self::stringListFrom($data['tagged_user_ids'] ?? []),
+            reply_to_id: self::stringOrNull($data['reply_to_id'] ?? null),
+            exclude_reply_user_ids: self::stringListFrom($data['exclude_reply_user_ids'] ?? []),
             place_id: self::stringOrNull($data['place_id'] ?? null),
             x_thread_image_layout: self::stringOrNull($data['x_thread_image_layout'] ?? null),
             post_url: self::stringOrNull($data['post_url'] ?? null),
@@ -199,6 +221,18 @@ final readonly class PlatformOptions
             flair_id: self::stringOrNull($data['flair_id'] ?? null),
             reddit_link_url: self::stringOrNull($data['reddit_link_url'] ?? null),
             bluesky_link_url: self::stringOrNull($data['bluesky_link_url'] ?? null),
+            gbp_location_id: self::stringOrNull($data['gbp_location_id'] ?? null),
+            gbp_topic_type: self::stringOrNull($data['gbp_topic_type'] ?? null),
+            gbp_cta_type: self::stringOrNull($data['gbp_cta_type'] ?? null),
+            gbp_cta_url: self::stringOrNull($data['gbp_cta_url'] ?? null),
+            gbp_event_title: self::stringOrNull($data['gbp_event_title'] ?? null),
+            gbp_event_start_date: self::stringOrNull($data['gbp_event_start_date'] ?? null),
+            gbp_event_start_time: self::stringOrNull($data['gbp_event_start_time'] ?? null),
+            gbp_event_end_date: self::stringOrNull($data['gbp_event_end_date'] ?? null),
+            gbp_event_end_time: self::stringOrNull($data['gbp_event_end_time'] ?? null),
+            gbp_coupon_code: self::stringOrNull($data['gbp_coupon_code'] ?? null),
+            gbp_redeem_url: self::stringOrNull($data['gbp_redeem_url'] ?? null),
+            gbp_terms: self::stringOrNull($data['gbp_terms'] ?? null),
         );
     }
 
@@ -223,6 +257,7 @@ final readonly class PlatformOptions
             'collaborators' => $this->collaborators,
             'user_tags' => $this->user_tags,
             'location_id' => $this->location_id,
+            'share_mode' => $this->share_mode,
             'share_to_feed' => $this->share_to_feed,
             'cover_url' => $this->cover_url,
             'cover_image' => $this->cover_image,
@@ -234,6 +269,7 @@ final readonly class PlatformOptions
             'embeddable' => $this->embeddable,
             'license' => $this->license,
             'publicStatsViewable' => $this->publicStatsViewable,
+            'thumbnail' => $this->thumbnail,
             'thumbnail_url' => $this->thumbnail_url,
             'selfDeclaredMadeForKids' => $this->selfDeclaredMadeForKids,
             'containsSyntheticMedia' => $this->containsSyntheticMedia,
@@ -272,6 +308,8 @@ final readonly class PlatformOptions
             'direct_message_deep_link' => $this->direct_message_deep_link,
             'x_long_text_as_post' => $this->x_long_text_as_post,
             'tagged_user_ids' => $this->tagged_user_ids,
+            'reply_to_id' => $this->reply_to_id,
+            'exclude_reply_user_ids' => $this->exclude_reply_user_ids,
             'place_id' => $this->place_id,
             'x_thread_image_layout' => $this->x_thread_image_layout,
             'post_url' => $this->post_url,
@@ -286,6 +324,18 @@ final readonly class PlatformOptions
             'flair_id' => $this->flair_id,
             'reddit_link_url' => $this->reddit_link_url,
             'bluesky_link_url' => $this->bluesky_link_url,
+            'gbp_location_id' => $this->gbp_location_id,
+            'gbp_topic_type' => $this->gbp_topic_type,
+            'gbp_cta_type' => $this->gbp_cta_type,
+            'gbp_cta_url' => $this->gbp_cta_url,
+            'gbp_event_title' => $this->gbp_event_title,
+            'gbp_event_start_date' => $this->gbp_event_start_date,
+            'gbp_event_start_time' => $this->gbp_event_start_time,
+            'gbp_event_end_date' => $this->gbp_event_end_date,
+            'gbp_event_end_time' => $this->gbp_event_end_time,
+            'gbp_coupon_code' => $this->gbp_coupon_code,
+            'gbp_redeem_url' => $this->gbp_redeem_url,
+            'gbp_terms' => $this->gbp_terms,
         ]);
     }
 
@@ -317,6 +367,12 @@ final readonly class PlatformOptions
         }
         if ($this->hasPlatform($platforms, Platform::Threads)) {
             $this->addThreads($payload);
+        }
+        if ($this->hasPlatform($platforms, Platform::Reddit)) {
+            $this->addReddit($payload, false);
+        }
+        if ($this->hasPlatform($platforms, Platform::GoogleBusiness)) {
+            $this->addGoogleBusiness($payload);
         }
 
         return $payload;
@@ -351,6 +407,9 @@ final readonly class PlatformOptions
         if ($this->hasPlatform($platforms, Platform::Reddit)) {
             $this->addReddit($payload, false);
         }
+        if ($this->hasPlatform($platforms, Platform::GoogleBusiness)) {
+            $this->addGoogleBusiness($payload);
+        }
 
         return $payload;
     }
@@ -379,7 +438,10 @@ final readonly class PlatformOptions
             $this->addReddit($payload, true, $link_url);
         }
         if ($this->hasPlatform($platforms, Platform::Bluesky)) {
-            $payload->field('bluesky_link_url', $this->bluesky_link_url ?? $link_url);
+            $this->addBluesky($payload, $link_url, ! $this->hasPlatform($platforms, Platform::X));
+        }
+        if ($this->hasPlatform($platforms, Platform::GoogleBusiness)) {
+            $this->addGoogleBusiness($payload);
         }
 
         return $payload;
@@ -434,7 +496,8 @@ final readonly class PlatformOptions
             ->field('user_tags', $this->user_tags)
             ->field('location_id', $this->location_id);
         if ($is_video) {
-            $p->field('share_to_feed', $this->share_to_feed)
+            $p->field('share_mode', $this->share_mode)
+                ->field('share_to_feed', $this->share_to_feed)
                 ->field('cover_url', $this->cover_url)
                 ->field('audio_name', $this->audio_name)
                 ->field('thumb_offset', $this->thumb_offset);
@@ -464,6 +527,9 @@ final readonly class PlatformOptions
             ->field('hasPaidProductPlacement', $this->hasPaidProductPlacement)
             ->field('recordingDate', $this->recordingDate)
             ->field('youtube_playlist_id', $this->youtube_playlist_id);
+        if ($this->thumbnail !== null) {
+            $p->media('thumbnail', $this->thumbnail instanceof Media ? $this->thumbnail : Media::from($this->thumbnail));
+        }
         foreach ($this->youtube_subtitles as $idx => $subtitle) {
             $subtitle->addTo($p, (int) $idx);
         }
@@ -529,7 +595,9 @@ final readonly class PlatformOptions
             ->field('community_id', $this->community_id)
             ->field('share_with_followers', $this->share_with_followers)
             ->field('direct_message_deep_link', $this->direct_message_deep_link)
-            ->field('x_long_text_as_post', $this->x_long_text_as_post);
+            ->field('x_long_text_as_post', $this->x_long_text_as_post)
+            ->field('reply_to_id', $this->reply_to_id)
+            ->field('exclude_reply_user_ids[]', $this->exclude_reply_user_ids);
         if ($is_text) {
             $p->field('post_url', $this->post_url)
                 ->field('card_uri', $this->card_uri)
@@ -560,6 +628,32 @@ final readonly class PlatformOptions
         }
 
         return $p;
+    }
+
+    private function addBluesky(MultipartPayload $p, ?string $link_url = null, bool $include_reply_to = true): MultipartPayload
+    {
+        $p->field('bluesky_link_url', $this->bluesky_link_url ?? $link_url);
+        if ($include_reply_to) {
+            $p->field('reply_to_id', $this->reply_to_id);
+        }
+
+        return $p;
+    }
+
+    private function addGoogleBusiness(MultipartPayload $p): MultipartPayload
+    {
+        return $p->field('gbp_location_id', $this->gbp_location_id)
+            ->field('gbp_topic_type', $this->gbp_topic_type)
+            ->field('gbp_cta_type', $this->gbp_cta_type)
+            ->field('gbp_cta_url', $this->gbp_cta_url)
+            ->field('gbp_event_title', $this->gbp_event_title)
+            ->field('gbp_event_start_date', $this->gbp_event_start_date)
+            ->field('gbp_event_start_time', $this->gbp_event_start_time)
+            ->field('gbp_event_end_date', $this->gbp_event_end_date)
+            ->field('gbp_event_end_time', $this->gbp_event_end_time)
+            ->field('gbp_coupon_code', $this->gbp_coupon_code)
+            ->field('gbp_redeem_url', $this->gbp_redeem_url)
+            ->field('gbp_terms', $this->gbp_terms);
     }
 
     /**

@@ -249,6 +249,62 @@ test('request DTOs can be converted to arrays', function (): void {
     ]);
 });
 
+test('documented platform options round trip through arrays', function (): void {
+    expect(PlatformOptions::fromArray([
+        'share_mode' => 'TRIAL_REELS_DONT_SHARE_TO_FOLLOWERS',
+        'thumbnail' => 'https://example.com/youtube-thumbnail.jpg',
+        'reply_to_id' => 'post-123',
+        'exclude_reply_user_ids' => ['user-1', 'user-2'],
+        'gbp_location_id' => 'locations/123',
+        'gbp_topic_type' => 'OFFER',
+        'gbp_cta_type' => 'SHOP',
+        'gbp_cta_url' => 'https://example.com/shop',
+        'gbp_event_title' => 'Launch',
+        'gbp_event_start_date' => '2026-08-01',
+        'gbp_event_start_time' => '09:00',
+        'gbp_event_end_date' => '2026-08-02',
+        'gbp_event_end_time' => '17:00',
+        'gbp_coupon_code' => 'SAVE20',
+        'gbp_redeem_url' => 'https://example.com/redeem',
+        'gbp_terms' => 'Terms apply.',
+    ])->toArray())->toBe([
+        'share_mode' => 'TRIAL_REELS_DONT_SHARE_TO_FOLLOWERS',
+        'thumbnail' => 'https://example.com/youtube-thumbnail.jpg',
+        'reply_to_id' => 'post-123',
+        'exclude_reply_user_ids' => ['user-1', 'user-2'],
+        'gbp_location_id' => 'locations/123',
+        'gbp_topic_type' => 'OFFER',
+        'gbp_cta_type' => 'SHOP',
+        'gbp_cta_url' => 'https://example.com/shop',
+        'gbp_event_title' => 'Launch',
+        'gbp_event_start_date' => '2026-08-01',
+        'gbp_event_start_time' => '09:00',
+        'gbp_event_end_date' => '2026-08-02',
+        'gbp_event_end_time' => '17:00',
+        'gbp_coupon_code' => 'SAVE20',
+        'gbp_redeem_url' => 'https://example.com/redeem',
+        'gbp_terms' => 'Terms apply.',
+    ]);
+});
+
+test('documented common upload fields and platforms round trip through arrays', function (): void {
+    $common = CommonUploadData::fromArray([
+        'user' => 'profile',
+        'platforms' => [Platform::Discord, Platform::Telegram, Platform::GoogleBusiness],
+        'request_id' => 'request-123',
+        'discord_title' => 'Discord caption',
+        'telegram_title' => 'Telegram caption',
+    ]);
+
+    expect($common->toArray())->toBe([
+        'user' => 'profile',
+        'platforms' => ['discord', 'telegram', 'google_business'],
+        'request_id' => 'request-123',
+        'discord_title' => 'Discord caption',
+        'telegram_title' => 'Telegram caption',
+    ]);
+});
+
 test('request DTO array factories cover defensive branches', function (): void {
     expect(AnalyticsQueryData::fromArray([
         'platforms' => [123],

@@ -15,5 +15,8 @@ enum Platform: string
     case Threads = 'threads';
     case Reddit = 'reddit';
     case Bluesky = 'bluesky';
+    case Discord = 'discord';
+    case Telegram = 'telegram';
+    case GoogleBusiness = 'google_business';
     case X = 'x';
 }

@@ -128,6 +128,8 @@ test('video options include selected platform-specific fields', function (): voi
                 Platform::Pinterest,
                 Platform::X,
                 Platform::Threads,
+                Platform::Reddit,
+                Platform::GoogleBusiness,
             ],
             title: 'Video',
         ),
@@ -143,6 +145,7 @@ test('video options include selected platform-specific fields', function (): voi
             collaborators: 'user',
             user_tags: 'tag',
             location_id: 'location',
+            share_mode: 'CUSTOM',
             share_to_feed: true,
             cover_url: 'https://example.com/cover.jpg',
             cover_image: 'https://example.com/cover-image.jpg',
@@ -154,6 +157,7 @@ test('video options include selected platform-specific fields', function (): voi
             embeddable: true,
             license: 'youtube',
             publicStatsViewable: true,
+            thumbnail: 'https://example.com/youtube-thumbnail.jpg',
             thumbnail_url: 'https://example.com/thumb.jpg',
             selfDeclaredMadeForKids: false,
             containsSyntheticMedia: true,
@@ -187,29 +191,52 @@ test('video options include selected platform-specific fields', function (): voi
             direct_message_deep_link: 'https://x.example.com/dm',
             x_long_text_as_post: true,
             tagged_user_ids: ['user-1'],
+            reply_to_id: 'tweet-123',
+            exclude_reply_user_ids: ['user-2'],
             place_id: 'place',
             x_thread_image_layout: 'grid',
             threads_long_text_as_post: true,
             threads_thread_media_layout: 'carousel',
             threads_topic_tag: 'php',
+            subreddit: 'php',
+            flair_id: 'flair',
+            gbp_location_id: 'locations/123',
+            gbp_topic_type: 'OFFER',
+            gbp_cta_type: 'SHOP',
+            gbp_cta_url: 'https://example.com/shop',
+            gbp_event_title: 'Launch',
+            gbp_event_start_date: '2026-08-01',
+            gbp_event_start_time: '09:00',
+            gbp_event_end_date: '2026-08-02',
+            gbp_event_end_time: '17:00',
+            gbp_coupon_code: 'SAVE20',
+            gbp_redeem_url: 'https://example.com/redeem',
+            gbp_terms: 'Terms apply.',
         ),
     ))->toMultipart()->all();
 
     $names = array_column($parts, 'name');
+    $contents = array_column($parts, 'contents', 'name');
 
     expect($names)->toContain(
         'privacy_level',
+        'share_mode',
         'cover_url',
         'cover_image',
+        'thumbnail',
         'youtube_playlist_id',
         'youtube_subtitle_file_0',
         'visibility',
         'facebook_page_id',
         'pinterest_cover_image_url',
         'tagged_user_ids[]',
+        'reply_to_id',
+        'exclude_reply_user_ids[]',
         'place_id',
         'threads_topic_tag',
-    );
+        'subreddit',
+        'gbp_terms',
+    )->and($contents['thumbnail'])->toBe('https://example.com/youtube-thumbnail.jpg');
 });
 
 test('photo options include selected platform-specific fields', function (): void {
@@ -226,6 +253,7 @@ test('photo options include selected platform-specific fields', function (): voi
                 Platform::X,
                 Platform::Threads,
                 Platform::Reddit,
+                Platform::GoogleBusiness,
             ],
             title: 'Photos',
         ),
@@ -238,9 +266,12 @@ test('photo options include selected platform-specific fields', function (): voi
             pinterest_board_id: 'board',
             reply_settings: 'everyone',
             tagged_user_ids: ['user-1'],
+            reply_to_id: 'tweet-123',
+            exclude_reply_user_ids: ['user-2'],
             threads_topic_tag: 'php',
             subreddit: 'php',
             flair_id: 'flair',
+            gbp_location_id: 'locations/123',
         ),
     ))->toMultipart()->all();
 
@@ -253,8 +284,11 @@ test('photo options include selected platform-specific fields', function (): voi
         'facebook_page_id',
         'pinterest_board_id',
         'tagged_user_ids[]',
+        'reply_to_id',
+        'exclude_reply_user_ids[]',
         'subreddit',
         'threads_topic_tag',
+        'gbp_location_id',
     )->not->toContain('reply_settings');
 });
 
@@ -262,7 +296,7 @@ test('text options include selected platform-specific fields', function (): void
     $parts = (new UploadTextData(
         common: new CommonUploadData(
             user: 'profile',
-            platforms: [Platform::LinkedIn, Platform::Facebook, Platform::X, Platform::Threads, Platform::Reddit, Platform::Bluesky],
+            platforms: [Platform::LinkedIn, Platform::Facebook, Platform::X, Platform::Threads, Platform::Reddit, Platform::Bluesky, Platform::GoogleBusiness],
             title: 'Text',
         ),
         link_url: 'https://example.com',
@@ -274,10 +308,13 @@ test('text options include selected platform-specific fields', function (): void
             poll_options: ['yes', 'no'],
             poll_duration: 60,
             poll_reply_settings: 'following',
+            reply_to_id: 'tweet-123',
+            exclude_reply_user_ids: ['user-2'],
             threads_topic_tag: 'php',
             subreddit: 'php',
             reddit_link_url: 'https://reddit.example.com',
             bluesky_link_url: 'https://bluesky.example.com',
+            gbp_topic_type: 'STANDARD',
         ),
     ))->toMultipart()->all();
 
@@ -290,8 +327,39 @@ test('text options include selected platform-specific fields', function (): void
         'post_url',
         'card_uri',
         'poll_options[]',
+        'reply_to_id',
+        'exclude_reply_user_ids[]',
         'threads_topic_tag',
         'reddit_link_url',
         'bluesky_link_url',
+        'gbp_topic_type',
     )->and($contents['bluesky_link_url'])->toBe('https://bluesky.example.com');
+});
+
+test('bluesky text options include replies without duplicating x fields', function (): void {
+    $parts = (new UploadTextData(
+        common: new CommonUploadData(user: 'profile', platforms: [Platform::Bluesky], title: 'Reply'),
+        options: new PlatformOptions(reply_to_id: 'at://did:plc:123/app.bsky.feed.post/456'),
+    ))->toMultipart()->all();
+
+    expect(array_column($parts, 'contents', 'name')['reply_to_id'])
+        ->toBe('at://did:plc:123/app.bsky.feed.post/456');
+});
+
+test('common upload fields include request id and messaging platform titles', function (): void {
+    $payload = new MultipartPayload;
+
+    (new CommonUploadData(
+        user: 'profile',
+        platforms: [Platform::Discord, Platform::Telegram],
+        request_id: 'request-123',
+        discord_title: 'Discord caption',
+        telegram_title: 'Telegram caption',
+    ))->addCommonTo($payload);
+
+    $contents = array_column($payload->all(), 'contents', 'name');
+
+    expect($contents['request_id'])->toBe('request-123')
+        ->and($contents['discord_title'])->toBe('Discord caption')
+        ->and($contents['telegram_title'])->toBe('Telegram caption');
 });

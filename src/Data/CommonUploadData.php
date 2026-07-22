@@ -32,6 +32,7 @@ final readonly class CommonUploadData
         public ?bool $add_to_queue = null,
         public ?int $max_posts_per_slot = null,
         public ?bool $async_upload = null,
+        public ?string $request_id = null,
         public array $first_comment_media = [],
         public ?string $bluesky_title = null,
         public ?string $instagram_title = null,
@@ -43,6 +44,8 @@ final readonly class CommonUploadData
         public ?string $pinterest_title = null,
         public ?string $threads_title = null,
         public ?string $reddit_title = null,
+        public ?string $discord_title = null,
+        public ?string $telegram_title = null,
         public ?string $linkedin_description = null,
         public ?string $youtube_description = null,
         public ?string $facebook_description = null,
@@ -83,6 +86,7 @@ final readonly class CommonUploadData
             add_to_queue: self::boolOrNull($data['add_to_queue'] ?? null),
             max_posts_per_slot: self::intOrNull($data['max_posts_per_slot'] ?? null),
             async_upload: self::boolOrNull($data['async_upload'] ?? null),
+            request_id: self::stringOrNull($data['request_id'] ?? null),
             first_comment_media: self::mediaListFrom($data['first_comment_media'] ?? []),
             bluesky_title: self::stringOrNull($data['bluesky_title'] ?? null),
             instagram_title: self::stringOrNull($data['instagram_title'] ?? null),
@@ -94,6 +98,8 @@ final readonly class CommonUploadData
             pinterest_title: self::stringOrNull($data['pinterest_title'] ?? null),
             threads_title: self::stringOrNull($data['threads_title'] ?? null),
             reddit_title: self::stringOrNull($data['reddit_title'] ?? null),
+            discord_title: self::stringOrNull($data['discord_title'] ?? null),
+            telegram_title: self::stringOrNull($data['telegram_title'] ?? null),
             linkedin_description: self::stringOrNull($data['linkedin_description'] ?? null),
             youtube_description: self::stringOrNull($data['youtube_description'] ?? null),
             facebook_description: self::stringOrNull($data['facebook_description'] ?? null),
@@ -127,6 +133,7 @@ final readonly class CommonUploadData
             'add_to_queue' => $this->add_to_queue,
             'max_posts_per_slot' => $this->max_posts_per_slot,
             'async_upload' => $this->async_upload,
+            'request_id' => $this->request_id,
             'first_comment_media' => $this->first_comment_media,
             'bluesky_title' => $this->bluesky_title,
             'instagram_title' => $this->instagram_title,
@@ -138,6 +145,8 @@ final readonly class CommonUploadData
             'pinterest_title' => $this->pinterest_title,
             'threads_title' => $this->threads_title,
             'reddit_title' => $this->reddit_title,
+            'discord_title' => $this->discord_title,
+            'telegram_title' => $this->telegram_title,
             'linkedin_description' => $this->linkedin_description,
             'youtube_description' => $this->youtube_description,
             'facebook_description' => $this->facebook_description,
@@ -167,6 +176,7 @@ final readonly class CommonUploadData
             ->field('add_to_queue', $this->add_to_queue)
             ->field('max_posts_per_slot', $this->max_posts_per_slot)
             ->field('async_upload', $this->async_upload)
+            ->field('request_id', $this->request_id)
             ->field('description', $this->description)
             ->field('bluesky_title', $this->bluesky_title)
             ->field('instagram_title', $this->instagram_title)
@@ -178,6 +188,8 @@ final readonly class CommonUploadData
             ->field('pinterest_title', $this->pinterest_title)
             ->field('threads_title', $this->threads_title)
             ->field('reddit_title', $this->reddit_title)
+            ->field('discord_title', $this->discord_title)
+            ->field('telegram_title', $this->telegram_title)
             ->field('linkedin_description', $this->linkedin_description)
             ->field('youtube_description', $this->youtube_description)
             ->field('facebook_description', $this->facebook_description)
