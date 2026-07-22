@@ -36,6 +36,28 @@ To install directly from GitHub before a tagged release is available, add the re
 }
 ```
 
+## Supported Platforms
+
+The SDK currently exposes the following social platforms through the `Platform` enum:
+
+| Platform | Enum case | Video | Photos | Text | Documents |
+| --- | --- | :---: | :---: | :---: | :---: |
+| TikTok | `Platform::TikTok` | Yes | Yes | No | No |
+| Instagram | `Platform::Instagram` | Yes | Yes | No | No |
+| YouTube | `Platform::YouTube` | Yes | No | No | No |
+| LinkedIn | `Platform::LinkedIn` | Yes | Yes | Yes | Yes |
+| Facebook | `Platform::Facebook` | Yes | Yes | Yes | No |
+| Pinterest | `Platform::Pinterest` | Yes | Yes | No | No |
+| Threads | `Platform::Threads` | Yes | Yes | Yes | No |
+| Reddit | `Platform::Reddit` | Yes | Yes | Yes | No |
+| Bluesky | `Platform::Bluesky` | Yes | Yes | Yes | No |
+| Discord | `Platform::Discord` | Yes | Yes | Yes | No |
+| Telegram | `Platform::Telegram` | Yes | Yes | Yes | No |
+| Google Business Profile | `Platform::GoogleBusiness` | Yes | Yes | Yes | No |
+| X (Twitter) | `Platform::X` | Yes | Yes | Yes | No |
+
+This table describes the platforms currently implemented by this SDK. The upstream Upload-Post API may add platforms before they are exposed here. Platform-specific account, media, and destination requirements still apply.
+
 ## Plain PHP Usage
 
 ```php
