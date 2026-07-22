@@ -8,6 +8,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
+use InvalidArgumentException;
 use Softgeng\UploadPost\Data\AnalyticsQueryData;
 use Softgeng\UploadPost\Data\GenerateJwtData;
 use Softgeng\UploadPost\Data\NotificationConfigData;
@@ -132,8 +133,12 @@ final readonly class UploadPostClient
 
     public function getAnalytics(string $profileUsername, ?AnalyticsQueryData $query = null): AnalyticsResponse
     {
+        if ($query === null || $query->platforms === []) {
+            throw new InvalidArgumentException('At least one analytics platform is required.');
+        }
+
         return AnalyticsResponse::fromArray(
-            $this->get('/analytics/'.rawurlencode($profileUsername), $query?->toQuery() ?? [])
+            $this->get('/analytics/'.rawurlencode($profileUsername), $query->toQuery())
         );
     }
 

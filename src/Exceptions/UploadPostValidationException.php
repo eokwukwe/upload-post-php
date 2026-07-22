@@ -13,14 +13,8 @@ final class UploadPostValidationException extends UploadPostException
         $payload = $response->json();
         $payload = is_array($payload) ? $payload : null;
 
-        $body = $response->body();
-        $message = $payload['message']
-            ?? $payload['detail']
-            ?? $payload['error']
-            ?? ($body !== '' ? $body : 'Unknown API error');
-
         return new self(
-            sprintf('Upload-Post API error [%s]: %s', $response->status(), $message),
+            sprintf('Upload-Post API error [%s]: %s', $response->status(), self::responseMessage($response, $payload)),
             $response->status(),
             $payload,
         );

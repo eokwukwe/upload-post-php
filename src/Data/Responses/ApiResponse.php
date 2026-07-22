@@ -28,7 +28,11 @@ abstract readonly class ApiResponse
 
     protected static function stringOrNull(mixed $value): ?string
     {
-        return $value === null || $value === '' ? null : (string) $value;
+        if ($value === null || $value === '' || ! is_scalar($value)) {
+            return null;
+        }
+
+        return (string) $value;
     }
 
     protected static function boolOrNull(mixed $value): ?bool

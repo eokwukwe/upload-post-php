@@ -25,10 +25,12 @@ final readonly class AnalyticsResponse extends ApiResponse
      */
     public static function fromArray(array $raw): self
     {
+        $data = Arr::get($raw, 'data');
+
         return new self(
             $raw,
             self::boolOrNull(Arr::get($raw, 'success')),
-            self::arrayOrEmpty(Arr::get($raw, 'data')),
+            is_array($data) ? $data : $raw,
         );
     }
 }
