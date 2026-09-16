@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Softgeng\UploadPost\Tests;
 
 use Orchestra\Testbench\TestCase as Orchestra;
-use Softgeng\UploadPost\Facades\UploadPost;
-use Softgeng\UploadPost\UploadPostServiceProvider;
+use Softgeng\UploadPost\Laravel\Facades\UploadPost;
+use Softgeng\UploadPost\Laravel\UploadPostServiceProvider;
 
 abstract class TestCase extends Orchestra
 {

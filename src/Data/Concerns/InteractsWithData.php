@@ -2,13 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Softgeng\UploadPost\Data;
+namespace Softgeng\UploadPost\Data\Concerns;
 
 use BackedEnum;
+use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
+use Exception;
+use InvalidArgumentException;
+use Softgeng\UploadPost\Data\CommonUploadData;
+use Softgeng\UploadPost\Data\PlatformOptions;
 use Softgeng\UploadPost\Enums\Platform;
+use Softgeng\UploadPost\Support\Media;
 
-trait Concerns
+trait InteractsWithData
 {
     protected static function enumValue(mixed $value): mixed
     {
@@ -21,12 +28,57 @@ trait Concerns
      */
     protected static function platformsToValues(array $platforms): array
     {
-        return array_map(static fn (Platform|string $p): string => $p instanceof Platform ? $p->value : $p, $platforms);
+        return array_map(
+            static fn (Platform|string $p): string => trim($p instanceof Platform ? $p->value : $p),
+            $platforms,
+        );
     }
 
     protected static function date(DateTimeInterface|string|null $date): ?string
     {
         return $date instanceof DateTimeInterface ? $date->format(DateTimeInterface::ATOM) : $date;
+    }
+
+    protected static function validateScheduledDate(
+        DateTimeInterface|string|null $date,
+        ?string $timezone = null,
+        bool $enforceMaximumHorizon = true,
+    ): void {
+        if ($date === null || (is_string($date) && trim($date) === '')) {
+            return;
+        }
+
+        try {
+            if ($date instanceof DateTimeInterface) {
+                $scheduled = DateTimeImmutable::createFromInterface($date);
+            } else {
+                if (! self::isIso8601Date($date)) {
+                    throw new InvalidArgumentException('scheduled_date must be a valid ISO 8601 date.');
+                }
+
+                $zone = $timezone !== null && trim($timezone) !== ''
+                    ? new DateTimeZone($timezone)
+                    : null;
+                $scheduled = new DateTimeImmutable($date, $zone);
+            }
+        } catch (Exception $e) {
+            throw new InvalidArgumentException('scheduled_date must be a valid ISO 8601 date.', $e->getCode(), previous: $e);
+        }
+
+        $now = new DateTimeImmutable('now');
+
+        if ($scheduled <= $now) {
+            throw new InvalidArgumentException('scheduled_date must be in the future.');
+        }
+
+        if ($enforceMaximumHorizon && $scheduled > $now->modify('+365 days')) {
+            throw new InvalidArgumentException('scheduled_date cannot be more than 365 days in the future.');
+        }
+    }
+
+    protected static function isIso8601Date(string $value): bool
+    {
+        return preg_match('/^\d{4}-\d{2}-\d{2}(?:[Tt ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:[Zz]|[+-]\d{2}:?\d{2})?)?$/D', trim($value)) === 1;
     }
 
     /**
@@ -160,6 +212,12 @@ trait Concerns
     protected static function mediaInputOrNull(mixed $value): string|object|null
     {
         return is_string($value) || is_object($value) ? $value : null;
+    }
+
+    protected static function mediaIsUrl(mixed $value): bool
+    {
+        return (is_string($value) && preg_match('/^https?:\/\//i', $value) === 1)
+            || ($value instanceof Media && $value->isUrl());
     }
 
     /**

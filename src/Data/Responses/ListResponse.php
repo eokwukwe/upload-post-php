@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Softgeng\UploadPost\Data\Responses;
 
+use Softgeng\UploadPost\Data\ResponseItem;
 use Softgeng\UploadPost\Support\Arr;
 
 final readonly class ListResponse extends ApiResponse
 {
     /**
      * @param  array<int|string, mixed>  $raw
-     * @param  array<int|string, mixed>  $items
+     * @param  list<ResponseItem>  $items
      */
     public function __construct(array $raw, public array $items = [])
     {
@@ -24,6 +25,6 @@ final readonly class ListResponse extends ApiResponse
     {
         $items = Arr::get($raw, 'data') ?? Arr::get($raw, 'items') ?? (array_is_list($raw) ? $raw : []);
 
-        return new self($raw, is_array($items) ? $items : []);
+        return new self($raw, self::itemsFrom($items));
     }
 }

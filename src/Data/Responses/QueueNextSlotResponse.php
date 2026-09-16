@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Softgeng\UploadPost\Data\Responses;
 
+use Softgeng\UploadPost\Data\QueueSlotData;
 use Softgeng\UploadPost\Support\Arr;
 
 final readonly class QueueNextSlotResponse extends ApiResponse
 {
     /**
      * @param  array<string, mixed>  $raw
-     * @param  array<string, mixed>|null  $next_slot
      */
     public function __construct(
         array $raw,
         public ?bool $success = null,
-        public ?array $next_slot = null,
+        public ?QueueSlotData $next_slot = null,
         public ?string $message = null,
     ) {
         parent::__construct($raw);
@@ -31,7 +31,7 @@ final readonly class QueueNextSlotResponse extends ApiResponse
         return new self(
             $raw,
             self::boolOrNull(Arr::get($raw, 'success')),
-            is_array($nextSlot) ? $nextSlot : null,
+            is_array($nextSlot) ? QueueSlotData::fromArray($nextSlot) : null,
             self::stringOrNull(Arr::get($raw, 'message')),
         );
     }

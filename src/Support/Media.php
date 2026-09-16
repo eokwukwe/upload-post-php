@@ -31,6 +31,56 @@ final readonly class Media
     }
 
     /**
+     * Validate the media input without opening local files.
+     *
+     * @throws InvalidArgumentException when the value is not an accepted media input.
+     */
+    public function validate(string $field): void
+    {
+        if (is_string($this->value)) {
+            if (trim($this->value) === '') {
+                throw new InvalidArgumentException("Invalid media for {$field}.");
+            }
+
+            if ($this->isUrl()) {
+                return;
+            }
+
+            if ($this->hasUrlScheme()) {
+                throw new InvalidArgumentException("Invalid media for {$field}.");
+            }
+
+            if (is_file($this->value)) {
+                return;
+            }
+
+            throw new InvalidArgumentException("Invalid media for {$field}.");
+        }
+
+        if ($this->value instanceof SplFileInfo) {
+            $path = $this->value->getRealPath();
+
+            if ($path === false || ! is_file($path)) {
+                throw new InvalidArgumentException("File not found for {$field}.");
+            }
+
+            return;
+        }
+
+        if (is_object($this->value) && method_exists($this->value, 'getRealPath')) {
+            $path = $this->value->getRealPath();
+
+            if (! is_string($path) || ! is_file($path)) {
+                throw new InvalidArgumentException("Invalid uploaded file for {$field}.");
+            }
+
+            return;
+        }
+
+        throw new InvalidArgumentException("Invalid media for {$field}.");
+    }
+
+    /**
      * @return array{
      *  name:string,
      *  contents:resource|string,
@@ -52,7 +102,7 @@ final readonly class Media
             return ['name' => $field, 'contents' => $this->openFile($path, $field), 'filename' => $this->value->getFilename()];
         }
 
-        if (is_string($this->value) && is_file($this->value)) {
+        if (is_string($this->value) && ! $this->hasUrlScheme() && is_file($this->value)) {
             return ['name' => $field, 'contents' => $this->openFile($this->value, $field), 'filename' => basename($this->value)];
         }
 
@@ -70,6 +120,12 @@ final readonly class Media
         }
 
         throw new InvalidArgumentException("Invalid media for {$field}.");
+    }
+
+    private function hasUrlScheme(): bool
+    {
+        return is_string($this->value)
+            && preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $this->value) === 1;
     }
 
     /**

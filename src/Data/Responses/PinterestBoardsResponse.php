@@ -25,7 +25,7 @@ final readonly class PinterestBoardsResponse extends ResourceListResponse
         return new self(
             $raw,
             self::boolOrNull(Arr::get($raw, 'success')),
-            self::arrayOrEmpty(Arr::get($raw, 'boards') ?? Arr::get($raw, $itemsKey) ?? Arr::get($raw, 'items')),
+            self::resourcesFrom(Arr::get($raw, 'boards') ?? Arr::get($raw, $itemsKey) ?? Arr::get($raw, 'items')),
             self::stringOrNull(Arr::get($raw, 'pinterest_account_used')),
         );
     }

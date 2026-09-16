@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Softgeng\UploadPost\Data\Responses;
 
+use Softgeng\UploadPost\Data\HistoryItemData;
 use Softgeng\UploadPost\Support\Arr;
 
 final readonly class HistoryResponse extends ApiResponse
 {
     /**
      * @param  array<string, mixed>  $raw
-     * @param  array<int|string, mixed>  $history
+     * @param  list<HistoryItemData>  $history
+     * @param  list<HistoryItemData>  $in_progress
      */
     public function __construct(
         array $raw,
@@ -18,22 +20,9 @@ final readonly class HistoryResponse extends ApiResponse
         public ?int $total = null,
         public ?int $page = null,
         public ?int $limit = null,
+        public array $in_progress = [],
     ) {
         parent::__construct($raw);
-    }
-
-    /**
-     * Backward-compatible alias for older ListResponse usage.
-     *
-     * @return array<int|string, mixed>|null
-     */
-    public function __get(string $name): mixed
-    {
-        if ($name === 'items') {
-            return $this->history;
-        }
-
-        return null;
     }
 
     /**
@@ -43,10 +32,11 @@ final readonly class HistoryResponse extends ApiResponse
     {
         return new self(
             $raw,
-            self::arrayOrEmpty(Arr::get($raw, 'history') ?? Arr::get($raw, 'data') ?? Arr::get($raw, 'items')),
+            self::historyFrom(Arr::get($raw, 'history') ?? Arr::get($raw, 'data') ?? Arr::get($raw, 'items')),
             self::intOrNull(Arr::get($raw, 'total')),
             self::intOrNull(Arr::get($raw, 'page')),
             self::intOrNull(Arr::get($raw, 'limit')),
+            self::historyFrom(Arr::get($raw, 'in_progress')),
         );
     }
 }

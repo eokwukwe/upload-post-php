@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Softgeng\UploadPost;
+namespace Softgeng\UploadPost\Laravel;
 
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Support\ServiceProvider;
 use Softgeng\UploadPost\Support\UploadPostConfig;
+use Softgeng\UploadPost\UploadPostClient;
 
 final class UploadPostServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/upload-post.php', 'upload-post');
+        $this->mergeConfigFrom(__DIR__.'/../../config/upload-post.php', 'upload-post');
 
         $this->app->singleton(
             UploadPostClient::class,
@@ -26,7 +27,7 @@ final class UploadPostServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__.'/../config/upload-post.php' => config_path('upload-post.php'),
+            __DIR__.'/../../config/upload-post.php' => config_path('upload-post.php'),
         ], 'upload-post-config');
     }
 }

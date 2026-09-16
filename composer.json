@@ -41,25 +41,30 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Softgeng\\UploadPost\\UploadPostServiceProvider"
+        "Softgeng\\UploadPost\\Laravel\\UploadPostServiceProvider"
       ],
       "aliases": {
-        "UploadPost": "Softgeng\\UploadPost\\Facades\\UploadPost"
+        "UploadPost": "Softgeng\\UploadPost\\Laravel\\Facades\\UploadPost"
       }
     }
   },
   "scripts": {
+    "refactor": "rector process",
+    "lint": "pint --parallel",
+    "analyse": "phpstan analyse --ansi",
     "test": "@php vendor/bin/pest --colors=always",
     "test:coverage": "@php vendor/bin/pest --coverage --colors=always --compact --min=90",
-    "refactor": "rector process",
     "test:refactor": "rector process --dry-run",
-    "lint": "pint",
-    "test:lint": "pint --test",
-    "test:analyse": "phpstan analyse --ansi",
+    "test:lint": "pint --test --parallel",
     "codecheck": [
       "@test:refactor",
       "@test:lint",
-      "@test:analyse"
+      "@analyse"
+    ],
+    "codefix": [
+      "@refactor",
+      "@lint",
+      "@analyse"
     ]
   },
   "config": {

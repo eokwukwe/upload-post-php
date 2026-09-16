@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Softgeng\UploadPost\Data\Responses;
 
+use Softgeng\UploadPost\Data\QueueSlotData;
 use Softgeng\UploadPost\Support\Arr;
 
 final readonly class QueuePreviewResponse extends ApiResponse
 {
     /**
      * @param  array<string, mixed>  $raw
-     * @param  array<int|string, mixed>  $slots
+     * @param  list<QueueSlotData>  $slots
      */
     public function __construct(
         array $raw,
@@ -24,20 +25,6 @@ final readonly class QueuePreviewResponse extends ApiResponse
     }
 
     /**
-     * Backward-compatible alias for list-style response usage.
-     *
-     * @return array<int|string, mixed>|null
-     */
-    public function __get(string $name): mixed
-    {
-        if ($name === 'items') {
-            return $this->slots;
-        }
-
-        return null;
-    }
-
-    /**
      * @param  array<string, mixed>  $raw
      */
     public static function fromArray(array $raw): self
@@ -47,7 +34,7 @@ final readonly class QueuePreviewResponse extends ApiResponse
             self::boolOrNull(Arr::get($raw, 'success')),
             self::stringOrNull(Arr::get($raw, 'timezone')),
             self::intOrNull(Arr::get($raw, 'max_posts_per_slot')),
-            self::arrayOrEmpty(Arr::get($raw, 'slots') ?? Arr::get($raw, 'data') ?? Arr::get($raw, 'items')),
+            self::queueSlotsFrom(Arr::get($raw, 'slots') ?? Arr::get($raw, 'data') ?? Arr::get($raw, 'items')),
             self::stringOrNull(Arr::get($raw, 'next_available')),
         );
     }

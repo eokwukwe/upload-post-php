@@ -4,64 +4,108 @@ declare(strict_types=1);
 
 namespace Softgeng\UploadPost\Data\Responses;
 
-use Softgeng\UploadPost\Support\Arr;
+use Softgeng\UploadPost\Data\CommentData;
+use Softgeng\UploadPost\Data\HistoryItemData;
+use Softgeng\UploadPost\Data\MediaData;
+use Softgeng\UploadPost\Data\PlatformUploadResult;
+use Softgeng\UploadPost\Data\QueueSlotData;
+use Softgeng\UploadPost\Data\ResourceData;
+use Softgeng\UploadPost\Data\ResponseData;
+use Softgeng\UploadPost\Data\ResponseItem;
+use Softgeng\UploadPost\Data\ScheduledPostData;
+use Softgeng\UploadPost\Data\UserProfileData;
 
-abstract readonly class ApiResponse
+abstract readonly class ApiResponse extends ResponseData
 {
     /**
-     * @param  array<int|string, mixed>  $raw
+     * @return list<ResponseItem>
      */
-    public function __construct(public array $raw) {}
-
-    public function get(string $key, mixed $default = null): mixed
+    protected static function itemsFrom(mixed $value): array
     {
-        return Arr::get($this->raw, $key, $default);
+        if (! is_array($value)) {
+            return [];
+        }
+
+        return array_values(array_map(
+            static fn (mixed $item): ResponseItem => ResponseItem::fromArray(is_array($item) ? $item : ['value' => $item]),
+            $value,
+        ));
+    }
+
+    /** @return list<CommentData> */
+    protected static function commentsFrom(mixed $value): array
+    {
+        return self::mapList($value, static fn (array $item): CommentData => CommentData::fromArray($item));
+    }
+
+    /** @return list<MediaData> */
+    protected static function mediaFrom(mixed $value): array
+    {
+        return self::mapList($value, static fn (array $item): MediaData => MediaData::fromArray($item));
+    }
+
+    /** @return list<HistoryItemData> */
+    protected static function historyFrom(mixed $value): array
+    {
+        return self::mapList($value, static fn (array $item): HistoryItemData => HistoryItemData::fromArray($item));
+    }
+
+    /** @return list<ScheduledPostData> */
+    protected static function scheduledPostsFrom(mixed $value): array
+    {
+        return self::mapList($value, static fn (array $item): ScheduledPostData => ScheduledPostData::fromArray($item));
+    }
+
+    /** @return list<UserProfileData> */
+    protected static function userProfilesFrom(mixed $value): array
+    {
+        return self::mapList($value, static fn (array $item): UserProfileData => UserProfileData::fromArray($item));
+    }
+
+    /** @return list<ResourceData> */
+    protected static function resourcesFrom(mixed $value): array
+    {
+        return self::mapList($value, static fn (array $item): ResourceData => ResourceData::fromArray($item));
+    }
+
+    /** @return list<QueueSlotData> */
+    protected static function queueSlotsFrom(mixed $value): array
+    {
+        return self::mapList($value, static fn (array $item): QueueSlotData => QueueSlotData::fromArray($item));
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @return list<PlatformUploadResult>
      */
-    public function toArray(): array
+    protected static function platformResultsFrom(mixed $value): array
     {
-        return $this->raw;
-    }
-
-    protected static function stringOrNull(mixed $value): ?string
-    {
-        if ($value === null || $value === '' || ! is_scalar($value)) {
-            return null;
+        if (! is_array($value)) {
+            return [];
         }
 
-        return (string) $value;
-    }
-
-    protected static function boolOrNull(mixed $value): ?bool
-    {
-        if ($value === null || $value === '') {
-            return null;
+        $results = [];
+        foreach ($value as $platform => $result) {
+            $results[] = PlatformUploadResult::fromArray(is_array($result) ? $result : ['value' => $result], is_string($platform) ? $platform : null);
         }
 
-        if (is_bool($value)) {
-            return $value;
-        }
-
-        return filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
-    }
-
-    protected static function intOrNull(mixed $value): ?int
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-
-        return is_numeric($value) ? (int) $value : null;
+        return $results;
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @template T of ResponseData
+     *
+     * @param  callable(array<string, mixed>): T  $mapper
+     * @return list<T>
      */
-    protected static function arrayOrEmpty(mixed $value): array
+    private static function mapList(mixed $value, callable $mapper): array
     {
-        return is_array($value) ? $value : [];
+        if (! is_array($value)) {
+            return [];
+        }
+
+        return array_values(array_map(
+            static fn (mixed $item) => $mapper(is_array($item) ? $item : []),
+            $value,
+        ));
     }
 }

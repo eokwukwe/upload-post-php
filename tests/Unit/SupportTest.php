@@ -53,6 +53,11 @@ test('media handles urls local files spl files and uploaded file like objects', 
     $splPart = Media::from(new SplFileInfo($file))->toMultipartPart('spl');
     $uploadedPart = Media::from($uploadedFile)->toMultipartPart('upload');
 
+    Media::from('https://example.com/photo.jpg')->validate('photo');
+    Media::from($file)->validate('file');
+    Media::from(new SplFileInfo($file))->validate('spl');
+    Media::from($uploadedFile)->validate('upload');
+
     expect($urlPart)->toBe(['name' => 'photo', 'contents' => 'https://example.com/photo.jpg'])
         ->and($pathPart['filename'])->toBe(basename($file))
         ->and(is_resource($pathPart['contents']))->toBeTrue()
@@ -98,13 +103,24 @@ test('media rejects invalid uploaded file like objects', function (): void {
 
     expect(fn (): array => Media::from($uploadedFile)->toMultipartPart('upload'))
         ->toThrow(InvalidArgumentException::class, 'Invalid uploaded file for upload.');
+
+    expect(fn () => Media::from($uploadedFile)->validate('upload'))
+        ->toThrow(InvalidArgumentException::class, 'Invalid uploaded file for upload.');
 });
 
 test('media rejects missing files and unsupported values', function (): void {
     expect(fn (): array => Media::from('missing-file.jpg')->toMultipartPart('file'))
         ->toThrow(InvalidArgumentException::class, 'Invalid media for file.')
         ->and(fn (): array => Media::from(new SplFileInfo('missing-file.jpg'))->toMultipartPart('spl'))
-        ->toThrow(InvalidArgumentException::class, 'File not found for spl.');
+        ->toThrow(InvalidArgumentException::class, 'File not found for spl.')
+        ->and(fn () => Media::from('missing-file.jpg')->validate('file'))
+        ->toThrow(InvalidArgumentException::class, 'Invalid media for file.')
+        ->and(fn () => Media::from(new SplFileInfo('missing-file.jpg'))->validate('spl'))
+        ->toThrow(InvalidArgumentException::class, 'File not found for spl.')
+        ->and(fn () => Media::from('ftp://example.com/file.jpg')->validate('file'))
+        ->toThrow(InvalidArgumentException::class, 'Invalid media for file.')
+        ->and(fn () => Media::from(new stdClass)->validate('file'))
+        ->toThrow(InvalidArgumentException::class, 'Invalid media for file.');
 });
 
 test('upload post config rejects blank api keys and trims base url', function (): void {

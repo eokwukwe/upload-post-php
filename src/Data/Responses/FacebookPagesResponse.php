@@ -8,6 +8,16 @@ use Softgeng\UploadPost\Support\Arr;
 
 final readonly class FacebookPagesResponse extends ResourceListResponse
 {
+    public function __construct(
+        array $raw,
+        ?bool $success = null,
+        array $items = [],
+        public ?string $selected_page_id = null,
+        public ?string $selected_page_name = null,
+    ) {
+        parent::__construct($raw, $success, $items);
+    }
+
     public function __get(string $name): mixed
     {
         if ($name === 'pages') {
@@ -25,7 +35,9 @@ final readonly class FacebookPagesResponse extends ResourceListResponse
         return new self(
             $raw,
             self::boolOrNull(Arr::get($raw, 'success')),
-            self::arrayOrEmpty(Arr::get($raw, 'pages') ?? Arr::get($raw, $itemsKey) ?? Arr::get($raw, 'items')),
+            self::resourcesFrom(Arr::get($raw, 'pages') ?? Arr::get($raw, $itemsKey) ?? Arr::get($raw, 'items')),
+            self::stringOrNull(Arr::get($raw, 'selected_page_id')),
+            self::stringOrNull(Arr::get($raw, 'selected_page_name')),
         );
     }
 }

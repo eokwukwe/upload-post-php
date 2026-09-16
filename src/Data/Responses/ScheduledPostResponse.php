@@ -18,6 +18,7 @@ final readonly class ScheduledPostResponse extends ApiResponse
         public ?string $scheduled_date = null,
         public ?string $title = null,
         public ?string $caption = null,
+        public ?string $external_id = null,
     ) {
         parent::__construct($raw);
     }
@@ -34,6 +35,7 @@ final readonly class ScheduledPostResponse extends ApiResponse
             self::stringOrNull(Arr::get($raw, 'scheduled_date')),
             self::stringOrNull(Arr::get($raw, 'title')),
             self::stringOrNull(Arr::get($raw, 'caption')),
+            self::stringOrNull(Arr::get($raw, 'external_id')),
         );
     }
 }

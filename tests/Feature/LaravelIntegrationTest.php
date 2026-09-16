@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Softgeng\UploadPost\Facades\UploadPost;
+use Softgeng\UploadPost\Laravel\Facades\UploadPost;
 use Softgeng\UploadPost\UploadPostClient;
 
 it('merges the package config', function (): void {

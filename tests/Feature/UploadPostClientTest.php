@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Softgeng\UploadPost\Data\CommonUploadData;
+use Softgeng\UploadPost\Data\CreateCommentData;
+use Softgeng\UploadPost\Data\Responses\ActionResponse;
 use Softgeng\UploadPost\Data\Responses\UploadResponse;
 use Softgeng\UploadPost\Data\UploadDocumentData;
 use Softgeng\UploadPost\Data\UploadPhotosData;
@@ -35,7 +37,7 @@ it('posts text upload as multipart', function (): void {
     $http->assertSent(fn ($request): bool => $request->hasHeader('Authorization', 'Apikey test'));
 });
 
-it('sends idempotency keys with every upload type', function (): void {
+it('sends idempotency keys with the documented upload types', function (): void {
     $http = new HttpFactory;
     $http->fake([
         'https://api.upload-post.com/api/upload' => $http->response(['request_id' => 'req_video'], 200),
@@ -66,7 +68,6 @@ it('sends idempotency keys with every upload type', function (): void {
         document: 'https://example.com/document.pdf',
         user: 'profile',
         title: 'Document',
-        idempotency_key: 'idem-document',
     ));
 
     $http->assertSent(fn ($request): bool => $request->url() === 'https://api.upload-post.com/api/upload'
@@ -76,7 +77,7 @@ it('sends idempotency keys with every upload type', function (): void {
     $http->assertSent(fn ($request): bool => $request->url() === 'https://api.upload-post.com/api/upload_text'
         && $request->hasHeader('X-Idempotency-Key', 'idem-text'));
     $http->assertSent(fn ($request): bool => $request->url() === 'https://api.upload-post.com/api/upload_document'
-        && $request->hasHeader('X-Idempotency-Key', 'idem-document'));
+        && ! $request->hasHeader('X-Idempotency-Key'));
 });
 
 it('uses the explicit api key when make receives an existing config', function (): void {
@@ -103,6 +104,39 @@ it('can be created with only an api key through make', function (): void {
     expect($client->getStatus('req_123')->status)->toBe('done');
 
     $http->assertSent(fn ($request): bool => $request->hasHeader('Authorization', 'Apikey fresh-key'));
+});
+
+it('does not retry JSON mutations but retries read requests', function (): void {
+    $http = new HttpFactory;
+    $mutationAttempts = 0;
+    $readAttempts = 0;
+    $http->fake(function ($request) use (&$mutationAttempts, &$readAttempts, $http) {
+        if (str_contains($request->url(), '/uploadposts/comments/create')) {
+            $mutationAttempts++;
+
+            return $http->response(['message' => 'temporary failure'], $mutationAttempts === 1 ? 500 : 200);
+        }
+
+        if (str_contains($request->url(), '/uploadposts/status')) {
+            $readAttempts++;
+
+            return $http->response(['status' => 'done'], $readAttempts === 1 ? 500 : 200);
+        }
+
+        return $http->response([], 404);
+    });
+
+    $client = new UploadPostClient(new UploadPostConfig(apiKey: 'test'), $http);
+
+    expect(fn (): ActionResponse => $client->createComment(new CreateCommentData(
+        user: 'profile',
+        message: 'Hello',
+        platform: 'facebook',
+        post_id: 'post_123',
+    )))->toThrow(UploadPostException::class)
+        ->and($client->getStatus('req_123')->status)->toBe('done')
+        ->and($mutationAttempts)->toBe(1)
+        ->and($readAttempts)->toBe(2);
 });
 
 it('throws a validation exception for 422 responses by default', function (): void {
@@ -143,6 +177,14 @@ it('uses response bodies and unknown fallbacks for api errors', function (): voi
 
     expect(fn (): UploadResponse => (new UploadPostClient(new UploadPostConfig(apiKey: 'test'), $bodyHttp))->uploadText($data))
         ->toThrow(UploadPostException::class, 'Upload-Post API error [500]: Plain failure');
+
+    $scalarHttp = new HttpFactory;
+    $scalarHttp->fake([
+        'https://api.upload-post.com/api/upload_text' => $scalarHttp->response(['message' => 123], 500),
+    ]);
+
+    expect(fn (): UploadResponse => (new UploadPostClient(new UploadPostConfig(apiKey: 'test'), $scalarHttp))->uploadText($data))
+        ->toThrow(UploadPostException::class, 'Upload-Post API error [500]: 123');
 
     $unknownHttp = new HttpFactory;
     $unknownHttp->fake([

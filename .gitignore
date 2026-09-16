@@ -20,10 +20,4 @@ yarn-error.log
 /.fleet
 /.idea
 playground/
-playground.json
-laradumps.yaml
-.github/copilot-instructions.md
-.vscode/mcp.json
-boost.json
-AGENTS.md
 coverage.xml

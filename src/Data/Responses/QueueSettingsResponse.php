@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Softgeng\UploadPost\Data\Responses;
 
+use Softgeng\UploadPost\Data\QueueSettingsData;
 use Softgeng\UploadPost\Support\Arr;
 
 final readonly class QueueSettingsResponse extends ApiResponse
 {
     /**
      * @param  array<string, mixed>  $raw
-     * @param  array<string, mixed>  $queue_settings
      */
     public function __construct(
         array $raw,
         public ?bool $success = null,
-        public array $queue_settings = [],
+        public ?QueueSettingsData $queue_settings = null,
     ) {
         parent::__construct($raw);
     }
@@ -25,30 +25,14 @@ final readonly class QueueSettingsResponse extends ApiResponse
      */
     public static function fromArray(array $raw): self
     {
+        $settings = Arr::get($raw, 'queue_settings');
+
         return new self(
             $raw,
             self::boolOrNull(Arr::get($raw, 'success')),
-            self::settingsOrEmpty(Arr::get($raw, 'queue_settings')),
+            is_array($settings)
+                ? QueueSettingsData::fromArray($settings)
+                : null,
         );
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private static function settingsOrEmpty(mixed $value): array
-    {
-        if (! is_array($value)) {
-            return [];
-        }
-
-        $settings = [];
-
-        foreach ($value as $key => $setting) {
-            if (is_string($key)) {
-                $settings[$key] = $setting;
-            }
-        }
-
-        return $settings;
     }
 }

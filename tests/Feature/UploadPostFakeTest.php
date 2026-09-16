@@ -6,7 +6,7 @@ use Softgeng\UploadPost\Data\CommonUploadData;
 use Softgeng\UploadPost\Data\UploadTextData;
 use Softgeng\UploadPost\Enums\Platform;
 use Softgeng\UploadPost\Exceptions\UploadPostValidationException;
-use Softgeng\UploadPost\Facades\UploadPost;
+use Softgeng\UploadPost\Laravel\Facades\UploadPost;
 use Softgeng\UploadPost\Support\UploadPostConfig;
 use Softgeng\UploadPost\Testing\UploadPostFake;
 use Softgeng\UploadPost\UploadPostClient;

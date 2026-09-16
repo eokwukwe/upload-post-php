@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Softgeng\UploadPost\Data;
 
+use Softgeng\UploadPost\Data\Concerns\InteractsWithData;
 use Softgeng\UploadPost\Enums\WebhookEvent;
 
 final readonly class NotificationConfigData
 {
-    use Concerns;
+    use InteractsWithData;
 
     /** @var array<string, bool> */
     public array $webhook_events;

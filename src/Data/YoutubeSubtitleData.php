@@ -4,19 +4,32 @@ declare(strict_types=1);
 
 namespace Softgeng\UploadPost\Data;
 
+use InvalidArgumentException;
+use Softgeng\UploadPost\Data\Concerns\InteractsWithData;
 use Softgeng\UploadPost\Support\Media;
 use Softgeng\UploadPost\Support\MultipartPayload;
 
 final readonly class YoutubeSubtitleData
 {
-    use Concerns;
+    use InteractsWithData;
 
     public function __construct(
         public string $language,
-        public string|object|null $file = null,
-        public ?string $url = null,
+        public string|object $file,
         public ?string $name = null
-    ) {}
+    ) {
+        if (trim($this->language) === '') {
+            throw new InvalidArgumentException('language is required for YouTube subtitles.');
+        }
+
+        if (is_string($this->file) && trim($this->file) === '') {
+            throw new InvalidArgumentException('file is required for YouTube subtitles.');
+        }
+
+        if (self::mediaIsUrl($this->file)) {
+            throw new InvalidArgumentException('YouTube subtitle files must be uploaded files or local file paths.');
+        }
+    }
 
     /**
      * @param  array<string, mixed>  $data
@@ -25,8 +38,7 @@ final readonly class YoutubeSubtitleData
     {
         return new self(
             language: self::stringOrNull($data['language'] ?? null) ?? '',
-            file: self::mediaInputOrNull($data['file'] ?? null),
-            url: self::stringOrNull($data['url'] ?? null),
+            file: self::mediaInputFrom($data['file'] ?? null),
             name: self::stringOrNull($data['name'] ?? null),
         );
     }
@@ -39,7 +51,6 @@ final readonly class YoutubeSubtitleData
         return self::withoutBlankValues([
             'language' => $this->language,
             'file' => $this->file,
-            'url' => $this->url,
             'name' => $this->name,
         ]);
     }
@@ -48,10 +59,10 @@ final readonly class YoutubeSubtitleData
     {
         $payload->field("youtube_subtitle_language_{$index}", $this->language)
             ->field("youtube_subtitle_name_{$index}", $this->name);
-        if ($this->file !== null) {
-            $payload->media("youtube_subtitle_file_{$index}", $this->file instanceof Media ? $this->file : Media::from($this->file));
-        } elseif ($this->url !== null) {
-            $payload->field("youtube_subtitle_file_{$index}", $this->url);
-        }
+
+        $payload->media(
+            "youtube_subtitle_file_{$index}",
+            $this->file instanceof Media ? $this->file : Media::from($this->file)
+        );
     }
 }

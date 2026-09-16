@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Softgeng\UploadPost\Data\Responses;
 
+use Softgeng\UploadPost\Data\NotificationConfigResponseData;
 use Softgeng\UploadPost\Support\Arr;
 
 final readonly class NotificationConfigResponse extends ApiResponse
 {
     /**
      * @param  array<string, mixed>  $raw
-     * @param  array<int|string, mixed>  $notifications
      */
     public function __construct(
         array $raw,
         public ?bool $success = null,
-        public array $notifications = [],
+        public ?NotificationConfigResponseData $notifications = null,
     ) {
         parent::__construct($raw);
     }
@@ -25,10 +25,14 @@ final readonly class NotificationConfigResponse extends ApiResponse
      */
     public static function fromArray(array $raw): self
     {
+        $notifications = Arr::get($raw, 'notifications');
+
         return new self(
             $raw,
             self::boolOrNull(Arr::get($raw, 'success')),
-            self::arrayOrEmpty(Arr::get($raw, 'notifications')),
+            is_array($notifications)
+                ? NotificationConfigResponseData::fromArray($notifications)
+                : null,
         );
     }
 }
