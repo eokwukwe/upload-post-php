@@ -10,6 +10,8 @@ use Softgeng\UploadPost\Data\Responses\HistoryResponse;
 use Softgeng\UploadPost\Data\Responses\MediaResponse;
 use Softgeng\UploadPost\Data\Responses\PostAnalyticsResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
+use Softgeng\UploadPost\Data\Responses\TikTokLocationsResponse;
+use Softgeng\UploadPost\Data\Responses\TikTokMusicResponse;
 use Softgeng\UploadPost\Data\Responses\TotalImpressionsResponse;
 use Softgeng\UploadPost\Data\Responses\UserResponse;
 use Softgeng\UploadPost\Enums\Platform;
@@ -55,6 +57,57 @@ it('requires at least one platform before requesting analytics', function (): vo
         ->toThrow(InvalidArgumentException::class, 'At least one analytics platform is required.')
         ->and(fn (): AnalyticsResponse => $client->getAnalytics('profile', new AnalyticsQueryData(platforms: ['   '])))
         ->toThrow(InvalidArgumentException::class, 'At least one analytics platform is required.');
+
+    $http->assertNothingSent();
+});
+
+it('returns typed TikTok music and location responses', function (): void {
+    $http = new HttpFactory;
+    $http->fake(['*' => $http->response([
+        'success' => true,
+        'query' => 'neon',
+        'genre' => 'POP',
+        'country_code' => 'US',
+        'date_range' => '7DAY',
+        'limit' => 5,
+        'total' => 1,
+        'tracks' => [[
+            'id' => 'music-1',
+            'title' => 'Neon Skyline',
+            'artist' => 'Wave Theory',
+            'duration' => 178,
+            'rank' => 1,
+            'genres' => ['POP'],
+        ]],
+        'catalog' => ['tracks_indexed' => 10, 'genres_indexed' => ['POP'], 'cached' => true],
+        'locations' => [[
+            'location_id' => 'place-1',
+            'location_name' => 'Museum',
+            'location_address' => 'Main Street',
+        ]],
+    ])]);
+
+    $client = new UploadPostClient(new UploadPostConfig(apiKey: 'test'), $http);
+
+    expect($client->getTikTokTrendingMusic('profile'))->toBeInstanceOf(TikTokMusicResponse::class)
+        ->and($client->searchTikTokMusic('profile', 'neon'))->toBeInstanceOf(TikTokMusicResponse::class)
+        ->and($client->getTikTokLocations('profile', 'museum'))->toBeInstanceOf(TikTokLocationsResponse::class);
+});
+
+it('validates TikTok music and location query inputs', function (): void {
+    $http = new HttpFactory;
+    $client = new UploadPostClient(new UploadPostConfig(apiKey: 'test'), $http);
+
+    expect(fn (): TikTokMusicResponse => $client->getTikTokTrendingMusic(' '))
+        ->toThrow(InvalidArgumentException::class, 'profile is required.')
+        ->and(fn (): TikTokMusicResponse => $client->searchTikTokMusic('profile', str_repeat('x', 81)))
+        ->toThrow(InvalidArgumentException::class, 'q must be 80 characters or fewer.')
+        ->and(fn (): TikTokMusicResponse => $client->searchTikTokMusic('profile', limit: 101))
+        ->toThrow(InvalidArgumentException::class, 'limit must be between 1 and 100.')
+        ->and(fn (): TikTokLocationsResponse => $client->getTikTokLocations('profile', ' '))
+        ->toThrow(InvalidArgumentException::class, 'q is required.')
+        ->and(fn (): TikTokLocationsResponse => $client->getTikTokLocations('profile', str_repeat('x', 101)))
+        ->toThrow(InvalidArgumentException::class, 'q must be 100 characters or fewer.');
 
     $http->assertNothingSent();
 });

@@ -14,6 +14,8 @@ use Softgeng\UploadPost\Data\HistoryQueryData;
 use Softgeng\UploadPost\Data\NotificationConfigData;
 use Softgeng\UploadPost\Data\Responses\PlatformMetricsResponse;
 use Softgeng\UploadPost\Data\Responses\PostAnalyticsResponse;
+use Softgeng\UploadPost\Data\Responses\TikTokLocationsResponse;
+use Softgeng\UploadPost\Data\Responses\TikTokMusicResponse;
 use Softgeng\UploadPost\Data\Responses\TotalImpressionsResponse;
 use Softgeng\UploadPost\Data\ScheduledPostsQueryData;
 use Softgeng\UploadPost\Data\UploadDocumentData;
@@ -113,6 +115,40 @@ function requestQuery(string $url): array
 
     return $query;
 }
+
+it('calls TikTok music and location endpoints with documented query parameters', function (): void {
+    $http = new HttpFactory;
+    $client = uploadPostClientWithFake($http);
+
+    expect($client->getTikTokTrendingMusic('profile', 'HIP_HOP/RAP', 'ES', '30DAY'))->toBeInstanceOf(TikTokMusicResponse::class)
+        ->and($client->searchTikTokMusic('profile', 'neon', 'POP', 'US', '7DAY', 5))->toBeInstanceOf(TikTokMusicResponse::class)
+        ->and($client->getTikTokLocations('profile', 'Museo del Prado'))->toBeInstanceOf(TikTokLocationsResponse::class);
+
+    $http->assertSent(fn ($request): bool => $request->method() === 'GET'
+        && str_contains((string) $request->url(), '/uploadposts/tiktok/music/trending')
+        && requestQuery((string) $request->url()) === [
+            'profile' => 'profile',
+            'genre' => 'HIP_HOP/RAP',
+            'country_code' => 'ES',
+            'date_range' => '30DAY',
+        ]);
+    $http->assertSent(fn ($request): bool => $request->method() === 'GET'
+        && str_contains((string) $request->url(), '/uploadposts/tiktok/music/search')
+        && requestQuery((string) $request->url()) === [
+            'profile' => 'profile',
+            'q' => 'neon',
+            'genre' => 'POP',
+            'country_code' => 'US',
+            'date_range' => '7DAY',
+            'limit' => '5',
+        ]);
+    $http->assertSent(fn ($request): bool => $request->method() === 'GET'
+        && str_contains((string) $request->url(), '/uploadposts/tiktok/locations')
+        && requestQuery((string) $request->url()) === [
+            'profile' => 'profile',
+            'q' => 'Museo del Prado',
+        ]);
+});
 
 it('calls upload endpoints', function (): void {
     $http = new HttpFactory;

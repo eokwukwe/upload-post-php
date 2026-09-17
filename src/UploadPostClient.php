@@ -40,6 +40,8 @@ use Softgeng\UploadPost\Data\Responses\QueueSlotFullResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
+use Softgeng\UploadPost\Data\Responses\TikTokLocationsResponse;
+use Softgeng\UploadPost\Data\Responses\TikTokMusicResponse;
 use Softgeng\UploadPost\Data\Responses\TotalImpressionsResponse;
 use Softgeng\UploadPost\Data\Responses\UploadResponse;
 use Softgeng\UploadPost\Data\Responses\UserPreferencesResponse;
@@ -223,6 +225,65 @@ final readonly class UploadPostClient
         return MediaResponse::fromArray(
             $this->get('/uploadposts/media', [...$query, 'platform' => $platform, 'user' => $user])
         );
+    }
+
+    public function getTikTokTrendingMusic(
+        string $profile,
+        ?string $genre = null,
+        ?string $countryCode = null,
+        ?string $dateRange = null,
+    ): TikTokMusicResponse {
+        $this->requireNonBlank($profile, 'profile');
+
+        return TikTokMusicResponse::fromArray($this->get('/uploadposts/tiktok/music/trending', $this->clean([
+            'profile' => $profile,
+            'genre' => $genre,
+            'country_code' => $countryCode,
+            'date_range' => $dateRange,
+        ])));
+    }
+
+    public function searchTikTokMusic(
+        string $profile,
+        ?string $q = null,
+        ?string $genre = null,
+        ?string $countryCode = null,
+        ?string $dateRange = null,
+        ?int $limit = null,
+    ): TikTokMusicResponse {
+        $this->requireNonBlank($profile, 'profile');
+
+        if ($q !== null && trim($q) !== '' && mb_strlen($q) > 80) {
+            throw new InvalidArgumentException('q must be 80 characters or fewer.');
+        }
+
+        if ($limit !== null && ($limit < 1 || $limit > 100)) {
+            throw new InvalidArgumentException('limit must be between 1 and 100.');
+        }
+
+        return TikTokMusicResponse::fromArray($this->get('/uploadposts/tiktok/music/search', $this->clean([
+            'profile' => $profile,
+            'q' => $q,
+            'genre' => $genre,
+            'country_code' => $countryCode,
+            'date_range' => $dateRange,
+            'limit' => $limit,
+        ])));
+    }
+
+    public function getTikTokLocations(string $profile, string $q): TikTokLocationsResponse
+    {
+        $this->requireNonBlank($profile, 'profile');
+        $this->requireNonBlank($q, 'q');
+
+        if (mb_strlen($q) > 100) {
+            throw new InvalidArgumentException('q must be 100 characters or fewer.');
+        }
+
+        return TikTokLocationsResponse::fromArray($this->get('/uploadposts/tiktok/locations', [
+            'profile' => $profile,
+            'q' => $q,
+        ]));
     }
 
     public function listScheduled(?ScheduledPostsQueryData $query = null): ScheduledPostsResponse

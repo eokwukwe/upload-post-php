@@ -34,12 +34,16 @@ use Softgeng\UploadPost\Data\Responses\ResourceListResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
+use Softgeng\UploadPost\Data\Responses\TikTokLocationsResponse;
+use Softgeng\UploadPost\Data\Responses\TikTokMusicResponse;
 use Softgeng\UploadPost\Data\Responses\TotalImpressionsResponse;
 use Softgeng\UploadPost\Data\Responses\UploadResponse;
 use Softgeng\UploadPost\Data\Responses\UserPreferencesResponse;
 use Softgeng\UploadPost\Data\Responses\UserProfilesResponse;
 use Softgeng\UploadPost\Data\Responses\UserResponse;
 use Softgeng\UploadPost\Data\ScheduledPostsQueryData;
+use Softgeng\UploadPost\Data\TikTokLocationData;
+use Softgeng\UploadPost\Data\TikTokMusicTrackData;
 use Softgeng\UploadPost\Data\UploadDocumentData;
 use Softgeng\UploadPost\Data\UploadPhotosData;
 use Softgeng\UploadPost\Data\UploadTextData;
@@ -1413,6 +1417,59 @@ test('response DTOs cover fallback accessors and scalar booleans', function (): 
         ->and(QueuePreviewResponse::fromArray(['slots' => []])->get('missing'))->toBeNull()
         ->and(ScheduledPostsResponse::fromArray(['scheduled_posts' => []])->get('missing'))->toBeNull()
         ->and(UserProfilesResponse::fromArray(['profiles' => []])->get('missing'))->toBeNull();
+});
+
+test('TikTok music and location responses expose typed data and raw payloads', function (): void {
+    $music = TikTokMusicResponse::fromArray([
+        'success' => true,
+        'query' => 'neon',
+        'genre' => 'POP',
+        'country_code' => 'US',
+        'date_range' => '7DAY',
+        'limit' => '5',
+        'total' => '1',
+        'tracks' => [[
+            'id' => 701,
+            'commercial_music_id' => 698,
+            'title' => 'Neon Skyline',
+            'artist' => 'Wave Theory',
+            'duration' => '178',
+            'rank' => 1,
+            'genres' => ['POP', 123, null],
+            'cover_url' => 'https://example.com/cover.jpg',
+            'preview_url' => 'https://example.com/preview.mp3',
+        ]],
+        'catalog' => [
+            'tracks_indexed' => '442',
+            'genres_indexed' => ['ALL', 123],
+            'cached' => 'true',
+        ],
+    ]);
+
+    expect($music)->toBeInstanceOf(TikTokMusicResponse::class)
+        ->and($music->tracks[0])->toBeInstanceOf(TikTokMusicTrackData::class)
+        ->and($music->tracks[0]->id)->toBe('701')
+        ->and($music->tracks[0]->genres)->toBe(['POP', '123'])
+        ->and($music->catalog?->tracks_indexed)->toBe(442)
+        ->and($music->catalog?->genres_indexed)->toBe(['ALL', '123'])
+        ->and($music->catalog?->cached)->toBeTrue()
+        ->and($music->raw['query'])->toBe('neon');
+
+    $locations = TikTokLocationsResponse::fromArray([
+        'success' => true,
+        'query' => 'museum',
+        'locations' => [[
+            'location_id' => 'place-1',
+            'location_name' => 'Museum',
+            'location_address' => 'Main Street',
+        ]],
+    ]);
+
+    expect($locations->locations[0])->toBeInstanceOf(TikTokLocationData::class)
+        ->and($locations->locations[0]->location_id)->toBe('place-1')
+        ->and($locations->locations[0]->location_name)->toBe('Museum')
+        ->and(TikTokLocationsResponse::fromArray(['locations' => 'invalid'])->locations)->toBe([])
+        ->and(TikTokMusicTrackData::fromArray(['genres' => 'invalid'])->genres)->toBe([]);
 });
 
 test('youtube subtitle data adds media subtitle fields', function (): void {

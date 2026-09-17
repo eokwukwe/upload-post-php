@@ -33,6 +33,8 @@ use Softgeng\UploadPost\Data\Responses\QueueSlotFullResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostResponse;
 use Softgeng\UploadPost\Data\Responses\ScheduledPostsResponse;
 use Softgeng\UploadPost\Data\Responses\StatusResponse;
+use Softgeng\UploadPost\Data\Responses\TikTokLocationsResponse;
+use Softgeng\UploadPost\Data\Responses\TikTokMusicResponse;
 use Softgeng\UploadPost\Data\Responses\TotalImpressionsResponse;
 use Softgeng\UploadPost\Data\Responses\UploadResponse;
 use Softgeng\UploadPost\Data\Responses\UserPreferencesResponse;
@@ -100,6 +102,9 @@ use Softgeng\UploadPost\UploadPostClient;
  * @method static GoogleBusinessLocationsResponse getGoogleBusinessLocation(string $profileUsername)
  * @method static ActionResponse selectGoogleBusinessLocation(string $locationId, string $profileUsername)
  * @method static ActionResponse clearGoogleBusinessLocation(string $profileUsername)
+ * @method static TikTokMusicResponse getTikTokTrendingMusic(string $profile, ?string $genre = null, ?string $countryCode = null, ?string $dateRange = null)
+ * @method static TikTokMusicResponse searchTikTokMusic(string $profile, ?string $q = null, ?string $genre = null, ?string $countryCode = null, ?string $dateRange = null, ?int $limit = null)
+ * @method static TikTokLocationsResponse getTikTokLocations(string $profile, string $q)
  */
 final class UploadPost extends Facade
 {

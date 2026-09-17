@@ -341,6 +341,7 @@ The client also supports:
 - `getStatus()` and `getJobStatus()`
 - `getHistory()` (use `HistoryQueryData` for platform, status, profile, request/job, external-id, and date filters)
 - `getAnalytics()`, `getTotalImpressions()`, `getPostAnalytics()` (optionally filtered by platform), and `getPlatformMetrics()`
+- `getTikTokTrendingMusic()`, `searchTikTokMusic()`, and `getTikTokLocations()` for TikTok music and place pickers
 - `listScheduled()` (use `ScheduledPostsQueryData` for profile, date-range, limit, and offset filters), `editScheduled()`, and `cancelScheduled()`
 - `getQueueSettings()`, `updateQueueSettings()`, `getQueuePreview()`, `markQueueSlotFull()`, `unmarkQueueSlotFull()`, and `getNextAvailableSlot()`
 - `listUsers()`, `getUser()`, `createUser()`, `deleteUser()`, `generateJwt()`, and `validateJwt()`
@@ -463,6 +464,8 @@ Current response types:
 | `getPostAnalytics()`, `getPostAnalyticsByPlatformId()` | `PostAnalyticsResponse` | `success`, `post`, `platforms` |
 | `getPlatformMetrics()` | `PlatformMetricsResponse` | `platforms` (each exposes `primary_impressions_field`, `available_metrics`, `metric_labels`) |
 | `getTotalImpressions()` | `TotalImpressionsResponse` | `success`, `profile_username`, `start_date`, `end_date`, `total_impressions`, `metrics`, `per_platform`, `per_day`, `platforms_filter` |
+| `getTikTokTrendingMusic()`, `searchTikTokMusic()` | `TikTokMusicResponse` | `success`, typed tracks, and search catalog metadata |
+| `getTikTokLocations()` | `TikTokLocationsResponse` | `success`, `query`, and typed location results |
 | `getMedia()` | `MediaResponse` | `success`, `media` |
 | `listScheduled()` | `ScheduledPostsResponse` | `scheduled_posts`, `total`, `limit`, `offset` |
 | `editScheduled()` | `ScheduledPostResponse` | `success`, `job_id`, `external_id`, `scheduled_date`, `title`, `caption` |
