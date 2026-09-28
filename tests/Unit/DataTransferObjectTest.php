@@ -49,14 +49,17 @@ use Softgeng\UploadPost\Data\UploadPhotosData;
 use Softgeng\UploadPost\Data\UploadTextData;
 use Softgeng\UploadPost\Data\UploadVideoData;
 use Softgeng\UploadPost\Data\YoutubeSubtitleData;
+use Softgeng\UploadPost\Enums\FacebookUnpublishedContentType;
 use Softgeng\UploadPost\Enums\GoogleBusinessCtaType;
 use Softgeng\UploadPost\Enums\GoogleBusinessMediaCategory;
 use Softgeng\UploadPost\Enums\GoogleBusinessPostType;
 use Softgeng\UploadPost\Enums\GoogleBusinessTopicType;
+use Softgeng\UploadPost\Enums\InstagramShareMode;
 use Softgeng\UploadPost\Enums\JwtLanguage;
 use Softgeng\UploadPost\Enums\LinkedinPollDuration;
 use Softgeng\UploadPost\Enums\Platform;
 use Softgeng\UploadPost\Enums\WebhookEvent;
+use Softgeng\UploadPost\Enums\YoutubeLicense;
 use Softgeng\UploadPost\Support\MultipartPayload;
 
 test('analytics query data maps platform enums and optional query values', function (): void {
@@ -666,6 +669,53 @@ test('Google Business option enums serialize to API values', function (): void {
         'gbp_media_category' => 'EXTERIOR',
         'gbp_topic_type' => 'OFFER',
     ]);
+});
+
+test('Facebook unpublished content type enum serializes to API values', function (): void {
+    $upload = new UploadVideoData(
+        video: 'https://example.com/video.mp4',
+        common: new CommonUploadData(user: 'profile', platforms: [Platform::Facebook], title: 'Video'),
+        options: new PlatformOptions(
+            facebook_unpublished_content_type: FacebookUnpublishedContentType::Draft,
+        ),
+    );
+
+    expect((new PlatformOptions(
+        facebook_unpublished_content_type: FacebookUnpublishedContentType::InlineCreated,
+    ))->toArray())->toHaveKey('facebook_unpublished_content_type', 'INLINE_CREATED')
+        ->and(PlatformOptions::fromArray([
+            'facebook_unpublished_content_type' => 'ADS_POST',
+        ])->toArray())->toHaveKey('facebook_unpublished_content_type', 'ADS_POST')
+        ->and(array_column($upload->toMultipart()->all(), 'contents', 'name'))
+        ->toHaveKey('facebook_unpublished_content_type', 'DRAFT');
+});
+
+test('Instagram share mode and YouTube license enums serialize to API values', function (): void {
+    $upload = new UploadVideoData(
+        video: 'https://example.com/video.mp4',
+        common: new CommonUploadData(
+            user: 'profile',
+            platforms: [Platform::Instagram, Platform::YouTube],
+            title: 'Video',
+        ),
+        options: new PlatformOptions(
+            share_mode: InstagramShareMode::TrialReelsShareToFollowersIfLiked,
+            license: YoutubeLicense::CreativeCommon,
+        ),
+    );
+
+    expect((new PlatformOptions(
+        share_mode: InstagramShareMode::TrialReelsShareToFollowersIfLiked,
+        license: YoutubeLicense::CreativeCommon,
+    ))->toArray())->toMatchArray([
+        'share_mode' => 'TRIAL_REELS_SHARE_TO_FOLLOWERS_IF_LIKED',
+        'license' => 'creativeCommon',
+    ])
+        ->and(array_column($upload->toMultipart()->all(), 'contents', 'name'))
+        ->toMatchArray([
+            'share_mode' => 'TRIAL_REELS_SHARE_TO_FOLLOWERS_IF_LIKED',
+            'license' => 'creativeCommon',
+        ]);
 });
 
 test('explicit current platform options round trip without an additional fields bag', function (): void {

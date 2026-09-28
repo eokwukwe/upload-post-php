@@ -8,18 +8,21 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use Softgeng\UploadPost\Data\Concerns\InteractsWithData;
 use Softgeng\UploadPost\Enums\FacebookMediaType;
+use Softgeng\UploadPost\Enums\FacebookUnpublishedContentType;
 use Softgeng\UploadPost\Enums\FacebookVideoState;
 use Softgeng\UploadPost\Enums\GoogleBusinessCtaType;
 use Softgeng\UploadPost\Enums\GoogleBusinessMediaCategory;
 use Softgeng\UploadPost\Enums\GoogleBusinessPostType;
 use Softgeng\UploadPost\Enums\GoogleBusinessTopicType;
 use Softgeng\UploadPost\Enums\InstagramMediaType;
+use Softgeng\UploadPost\Enums\InstagramShareMode;
 use Softgeng\UploadPost\Enums\LinkedinPollDuration;
 use Softgeng\UploadPost\Enums\LinkedinVisibility;
 use Softgeng\UploadPost\Enums\Platform;
 use Softgeng\UploadPost\Enums\TiktokPostMode;
 use Softgeng\UploadPost\Enums\TiktokPrivacyLevel;
 use Softgeng\UploadPost\Enums\XReplySettings;
+use Softgeng\UploadPost\Enums\YoutubeLicense;
 use Softgeng\UploadPost\Enums\YoutubePrivacyStatus;
 use Softgeng\UploadPost\Support\Media;
 use Softgeng\UploadPost\Support\MultipartPayload;
@@ -81,7 +84,7 @@ final readonly class PlatformOptions
         public ?string $collaborators = null,
         public ?string $user_tags = null,
         public ?string $location_id = null,
-        public ?string $share_mode = null,
+        public InstagramShareMode|string|null $share_mode = null,
         public ?bool $share_to_feed = null,
         public ?string $cover_url = null,
         public string|object|null $cover_image = null,
@@ -93,7 +96,7 @@ final readonly class PlatformOptions
         public ?string $categoryId = null,
         public YoutubePrivacyStatus|string|null $privacyStatus = null,
         public ?bool $embeddable = null,
-        public ?string $license = null,
+        public YoutubeLicense|string|null $license = null,
         public ?bool $publicStatsViewable = null,
         public string|object|null $thumbnail = null,
         public ?string $thumbnail_url = null,
@@ -131,7 +134,7 @@ final readonly class PlatformOptions
         public ?string $facebook_link_url = null,
         public string|array|null $facebook_collaborators = null,
         public ?bool $facebook_is_ai_generated = null,
-        public ?string $facebook_unpublished_content_type = null,
+        public FacebookUnpublishedContentType|string|null $facebook_unpublished_content_type = null,
         public ?bool $facebook_no_story = null,
         public ?bool $facebook_secret = null,
         public string|array|null $facebook_alt_text = null,
@@ -460,7 +463,7 @@ final readonly class PlatformOptions
             'collaborators' => $this->collaborators,
             'user_tags' => $this->user_tags,
             'location_id' => $this->location_id,
-            'share_mode' => $this->share_mode,
+            'share_mode' => self::enumValue($this->share_mode),
             'share_to_feed' => $this->share_to_feed,
             'cover_url' => $this->cover_url,
             'cover_image' => $this->cover_image,
@@ -471,7 +474,7 @@ final readonly class PlatformOptions
             'categoryId' => $this->categoryId,
             'privacyStatus' => self::enumValue($this->privacyStatus),
             'embeddable' => $this->embeddable,
-            'license' => $this->license,
+            'license' => self::enumValue($this->license),
             'publicStatsViewable' => $this->publicStatsViewable,
             'thumbnail' => $this->thumbnail,
             'thumbnail_url' => $this->thumbnail_url,
@@ -510,7 +513,7 @@ final readonly class PlatformOptions
             'facebook_link_url' => $this->facebook_link_url,
             'facebook_collaborators' => $this->facebook_collaborators,
             'facebook_is_ai_generated' => $this->facebook_is_ai_generated,
-            'facebook_unpublished_content_type' => $this->facebook_unpublished_content_type,
+            'facebook_unpublished_content_type' => self::enumValue($this->facebook_unpublished_content_type),
             'facebook_no_story' => $this->facebook_no_story,
             'facebook_secret' => $this->facebook_secret,
             'facebook_alt_text' => $this->facebook_alt_text,
@@ -1378,7 +1381,7 @@ final readonly class PlatformOptions
             ->field('location_id', $this->location_id);
 
         if ($is_video) {
-            $p->field('share_mode', $this->share_mode)
+            $p->field('share_mode', self::enumValue($this->share_mode))
                 ->field('share_to_feed', $this->share_to_feed)
                 ->field('cover_url', $this->cover_url)
                 ->field('audio_name', $this->audio_name)
@@ -1398,7 +1401,7 @@ final readonly class PlatformOptions
             ->field('categoryId', $this->categoryId)
             ->field('privacyStatus', self::enumValue($this->privacyStatus))
             ->field('embeddable', $this->embeddable)
-            ->field('license', $this->license)
+            ->field('license', self::enumValue($this->license))
             ->field('publicStatsViewable', $this->publicStatsViewable)
             ->field('thumbnail_url', $this->thumbnail_url)
             ->field('selfDeclaredMadeForKids', $this->selfDeclaredMadeForKids)

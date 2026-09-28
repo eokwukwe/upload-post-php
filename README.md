@@ -305,7 +305,10 @@ Platform-specific fields are only included when their platform is selected in `C
 | Option | Emitted for |
 | --- | --- |
 | `privacy_level`, `post_mode` | TikTok video and photo uploads |
+| `share_mode` | Instagram video uploads (`CUSTOM`, `TRIAL_REELS_SHARE_TO_FOLLOWERS_IF_LIKED`, `TRIAL_REELS_DONT_SHARE_TO_FOLLOWERS`) |
+| `license` | YouTube video uploads (`youtube`, `creativeCommon`) |
 | `facebook_media_type` | Facebook videos (`REELS`, `STORIES`, `VIDEO`) and photos (`POSTS`, `STORIES`) |
+| `facebook_unpublished_content_type` | Facebook video uploads (`DRAFT`, `INLINE_CREATED`, `ADS_POST`) |
 | `threads_long_text_as_post` | Threads text uploads |
 | `threads_thread_media_layout` | Threads photo uploads |
 | `threads_topic_tag` | Threads video, photo, and text uploads |
